@@ -1,13 +1,12 @@
-<font size="12">**PureBeta** </font>  <a href="https://staaflab.github.io/PureBeta/"><img src="man/figures/logo.svg" align="right" height="278" alt="PureBeta website" /></a>
+<font size="12">**PureBeta** </font>  <a href="https://staaflab.github.io/PureBeta/"><img src="man/figures/logo.png" align="right" height="278" alt="PureBeta website" /></a>
 
 Method for calculating tumor purity and adjusting Illumina 450/850K DNA methylation beta values. This work has been described in the article "**Tumor purity estimated from bulk DNA methylation can be used for adjusting beta values of individual samples to better reflect tumor biology**" published by [Sasiain, Nacer et al. in *JOURNAL*](LINK).
 
 ## How to install
 
 ```R
-# Install devtools if required
-if(!requireNamespace("devtools", quietly = TRUE)) {
-  install.packages("devtools", quietly = TRUE) }
+# Install devtools if you don't have it yet
+install.packages("devtools")
 
 # Load the library
 library(devtools)
