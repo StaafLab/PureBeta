@@ -298,7 +298,7 @@ reference_based_beta_correction <- function(
   } else {
 
     registerDoSNOW(cl)
-    clusterExport(cl, list("identify_regression", "correcting_betas"))
+    clusterExport(cl, list("PureBeta:::identify_regression", "PureBeta:::correcting_betas"))
 
     
     # PROCESSING PREDICTED PURITIES
