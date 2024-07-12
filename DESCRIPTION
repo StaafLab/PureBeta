@@ -1,0 +1,13 @@
+Package: PureBeta
+Type: Package
+Title: Method for calculating tumor purity and adjusting Illumina 450/850K DNA methylation beta values
+Version: 1.0.0
+Author: Iñaki Sasiain Casado
+Maintainer: Iñaki Sasiain Casado <inaki.sasiain_casado@med.lu.se>
+Description: This package allows for the adjustment of DNA methylation beta values based on sample purity, to account for the effect of tumor composition in experimentally determined beta values. Additionally, it allows for the estimation of sample purity from unadjusted beta values using reference data.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 3.5.0), doParallel, parallel, flexmix, doSNOW, foreach, Kendall, pbapply
+RoxygenNote: 7.3.2
+URL: https://staaflab.github.io/PureBeta/(>= 2)
