@@ -32,3 +32,8 @@ The PureBeta package is divided into four main functions:
 4. *Adjustment of beta values per CpG per sample*: in the ***reference_based_beta_correction()*** function, beta values are adjusted for tumor cells and inferred for normal cells using the reference regressions and the estimated purities. This can be carried out after refitting the regressions to include the new data points with estimated purities or using the original reference regressions. Scripts used in this module: final_beta_correction.r (main), new_function_correctBetas.r.
 
 ![](./man/figures/module3.png)
+
+
+### License
+
+The PureBeta R package is under the GPL-3.0 license. A copy of this license is included with the R package.
