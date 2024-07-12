@@ -298,7 +298,10 @@ reference_based_beta_correction <- function(
   } else {
 
     registerDoSNOW(cl)
-    snow::clusterExport(cl, c("identify_regression", "correcting_betas"))
+    #snow::clusterExport(cl, list("identify_regression", "correcting_betas"))
+clusterEvalQ(cl, {
+  library(yourPackageName)  # Replace with the actual package name
+})
 
     # PROCESSING PREDICTED PURITIES
 
