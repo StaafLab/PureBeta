@@ -421,7 +421,6 @@ reference_based_beta_correction <- function(
     # Stop clusters used in parallelization
     stopCluster(cl)
 
-
     # PROCESSING OUTPUT
 
     cat("\n\nGenerating output...\n\n")
