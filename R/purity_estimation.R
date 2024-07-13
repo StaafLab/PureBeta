@@ -114,7 +114,9 @@ purity_estimation <- function(
   #Registering the clusters
   registerDoSNOW(cl)
 
-  invisible(clusterExport(cl, c("predicting_purity", "purity_coverage")))
+  parallel::clusterExport(cl = cl, 
+                          varlist = unclass(lsf.str(envir = asNamespace("PureBeta"), all = TRUE)),
+                          envir = as.environment(asNamespace("PureBeta")))
 
 
   #
