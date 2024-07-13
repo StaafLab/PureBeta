@@ -298,7 +298,9 @@ reference_based_beta_correction <- function(
   } else {
 
     registerDoSNOW(cl)
-    #clusterExport(cl, list("identify_regression", "correcting_betas"), envir="package:PureBeta")
+    clusterExport(cl = cl, 
+                  varlist = unslass(lsf.str(envir = asNamespace("pureBeta"), all = TRUE)),
+                  envir = as.environment(asNamespace("pureBeta")))
 
     
     # PROCESSING PREDICTED PURITIES
