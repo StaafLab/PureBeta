@@ -416,6 +416,12 @@ reference_based_beta_correction <- function(
       )
     )
 
+    }
+
+    # Stop clusters used in parallelization
+    stopCluster(cl)
+
+
     # PROCESSING OUTPUT
 
     cat("\n\nGenerating output...\n\n")
@@ -435,19 +441,11 @@ reference_based_beta_correction <- function(
     cat ("PROCESS FINISHED")
     cat("\n=================\n\n")
 
-
-    # Stop clusters used in parallelization
-    stopCluster(cl)
-
     return(
       list(
         "Corrected_tumour" = corrected_tumor,
         "Corrected_microenvironment"  = corrected_microenvironment
       )
     )
-
-
-  }
-
 
 }
