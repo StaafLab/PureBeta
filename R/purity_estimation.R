@@ -98,7 +98,7 @@ purity_estimation <- function(
   reference_regressions$reg.slopes <- reference_regressions$reg.slopes[cpgs_to_keep,]
   reference_regressions$reg.intercepts <- reference_regressions$reg.intercepts[cpgs_to_keep,]
   reference_regressions$reg.RSE <- reference_regressions$reg.RSE[cpgs_to_keep,]
-  my_df <- beta_values[cpgs_to_keep,]
+  my_df <- beta_values[rownames(beta_values) %in% cpgs_to_keep,]
 
 
   #
