@@ -298,7 +298,7 @@ reference_based_beta_correction <- function(
   } else {
 
     registerDoSNOW(cl)
-    clusterExport(cl = cl, 
+    parallel::clusterExport(cl = cl, 
                   varlist = unslass(lsf.str(envir = asNamespace("PureBeta"), all = TRUE)),
                   envir = as.environment(asNamespace("PureBeta")))
 
