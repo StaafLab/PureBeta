@@ -299,8 +299,8 @@ reference_based_beta_correction <- function(
 
     registerDoSNOW(cl)
     clusterExport(cl = cl, 
-                  varlist = unslass(lsf.str(envir = asNamespace("pureBeta"), all = TRUE)),
-                  envir = as.environment(asNamespace("pureBeta")))
+                  varlist = unslass(lsf.str(envir = asNamespace("PureBeta"), all = TRUE)),
+                  envir = as.environment(asNamespace("PureBeta")))
 
     
     # PROCESSING PREDICTED PURITIES
