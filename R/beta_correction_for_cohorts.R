@@ -1,9 +1,11 @@
-#' beta_correction_for_cohorts
+#' Beta correction for cohorts
 #'
-#' This functions applies the original Staaf & Aine DNA methylation beta value
-#' correction strategy to adjust the effect of sample purities in cohorts with
-#' known sample purities and CpG beta values (Staaf & Aine, Plos One, 2022).
-#' This function allows mult-core execution.
+#' This function performs beta value adjustment for tumor sample composition
+#' based on the original Staaf & Aine approch, correcting betas
+#' from a cohort of samples with known sample purities and CpG beta values.
+#' More information about this method can be found in the original publication:
+#' (Staaf & Aine, PLosOne, 2022). This function allows multi-core execution.
+#'
 #'
 #' @param beta_values A matrix with CpGs as rows and tumour samples as columns
 #' with the uncorrected beta values from the CpGs of the samples that are
@@ -11,7 +13,7 @@
 #' with the CpG ID, and the columns with the sample IDs. An example of the
 #' required format is available in the example_betas_reference matrix.
 #'
-#' @param tumour_purities Named vector containing the sample purity values of
+#' @param tumour_purities Named vector containing the purity values of
 #' of the samples whose DNA methylation beta values are intended to be corrected.
 #' The vector must be named with the sample ID, which must match with the sample
 #' IDs from the matrix containing the beta values. An example of the required
@@ -29,7 +31,8 @@
 #'
 #' @return List containing the original uncorrected beta values
 #' (output$betas.original), the corrected tumour beta values (output$betas.tumour)
-#' and the corrected microenvironment beta values (output$betas.microenvironment).
+#' and the corrected microenvironment beta values (output$betas.microenvironment)
+#' as matrices with CpGs as rows and tumor samples as columns.
 #'
 #' @export
 #'
@@ -82,7 +85,7 @@ beta_correction_for_cohorts <- function(
   invisible(clusterEvalQ(cl, {library("flexmix")}))
 
   # Export all the functions in the package to the defined cores
-  parallel::clusterExport(cl = cl, 
+  parallel::clusterExport(cl = cl,
                   varlist = unclass(lsf.str(envir = asNamespace("PureBeta"), all = TRUE)),
                   envir = as.environment(asNamespace("PureBeta")))
 

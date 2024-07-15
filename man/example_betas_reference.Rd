@@ -3,12 +3,12 @@
 \docType{data}
 \name{example_betas_reference}
 \alias{example_betas_reference}
-\title{example_betas_reference}
+\title{Example betas reference}
 \format{
 A matrix with 5000 rows (CpGs) and 126 columns (samples).
 }
 \source{
-<https://github.com/StaafLab/PureBeta>
+<The Cancer Genome Atlas>
 }
 \usage{
 example_betas_reference

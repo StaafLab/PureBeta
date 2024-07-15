@@ -1,7 +1,7 @@
-#' reference_regression_generator
+#' Reference regression generator
 #'
 #' This function generates the reference regressions' parameters and variance of
-#' the used reference CpGs required to be used in subsequent steps of the PureBeta
+#' the reference CpGs required in subsequent steps of the PureBeta
 #' workflow based on the Staaf & Aine methylation beta value correction strategy.
 #' This function allows multi-core execution.
 #'
@@ -102,7 +102,7 @@ reference_regression_generator <- function(
   invisible(clusterEvalQ(cl, {library("flexmix")}))
 
   # Export all the functions in the package to the defined cores
-  parallel::clusterExport(cl = cl, 
+  parallel::clusterExport(cl = cl,
                   varlist = unclass(lsf.str(envir = asNamespace("PureBeta"), all = TRUE)),
                   envir = as.environment(asNamespace("PureBeta")))
 

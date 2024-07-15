@@ -2,7 +2,7 @@
 % Please edit documentation in R/beta_correction_for_cohorts.R
 \name{beta_correction_for_cohorts}
 \alias{beta_correction_for_cohorts}
-\title{beta_correction_for_cohorts}
+\title{Beta correction for cohorts}
 \usage{
 beta_correction_for_cohorts(
   beta_values,
@@ -19,7 +19,7 @@ intended to be corrected. The values must be numeric, the rows must be named
 with the CpG ID, and the columns with the sample IDs. An example of the
 required format is available in the example_betas_reference matrix.}
 
-\item{tumour_purities}{Named vector containing the sample purity values of
+\item{tumour_purities}{Named vector containing the purity values of
 of the samples whose DNA methylation beta values are intended to be corrected.
 The vector must be named with the sample ID, which must match with the sample
 IDs from the matrix containing the beta values. An example of the required
@@ -38,13 +38,15 @@ parallel.}
 \value{
 List containing the original uncorrected beta values
 (output$betas.original), the corrected tumour beta values (output$betas.tumour)
-and the corrected microenvironment beta values (output$betas.microenvironment).
+and the corrected microenvironment beta values (output$betas.microenvironment)
+as matrices with CpGs as rows and tumor samples as columns.
 }
 \description{
-This functions applies the original Staaf & Aine DNA methylation beta value
-correction strategy to adjust the effect of sample purities in cohorts with
-known sample purities and CpG beta values (Staaf & Aine, Plos One, 2022).
-This function allows mult-core execution.
+This function performs beta value adjustment for tumor sample composition
+based on the original Staaf & Aine approch, correcting betas
+from a cohort of samples with known sample purities and CpG beta values.
+More information about this method can be found in the original publication:
+(Staaf & Aine, PLosOne, 2022). This function allows multi-core execution.
 }
 \examples{
 

@@ -1,11 +1,12 @@
 #' Reference based beta correction
 #'
-#'  This script corrects beta values of samples whose purity has been estimated
-#'  based on a reference cohort following two approaches, refitting the reference
-#'  regressions to include both, the reference data points and the new ones
-#'  (betas to correct + estimated purity) or without refitting the reference
-#'  regressions, using directly the original reference linear models for the
-#'  correction. This function allows multi-core execution.
+#' This function adjusts CpG beta values for tumor cells and inferred
+#' normal cells using reference regressions and estimated purities. This can
+#' be carried out refitting the regressions to include the new data points
+#' (betas + estimated purities) or using the original reference regressions. Unlike
+#' beta_correction_for_cohorts(), this function does not require the usage
+#' of a full cohort of samples, as it is single sample and single CpG applicable.
+#' This function allows multi-core execution.
 #'
 #' @param betas_to_correct A matrix with CpGs as rows and analysed samples (or an
 #' individual sample) as columns with the uncorrected beta values from the CpGs
@@ -14,8 +15,16 @@
 #' An example of the required format is available in the example_betas_to_correct
 #' matrix.
 #'
-#' @param purities_samples_to_correct The output of the purity_estimation tumour sample
-#' purity estimation function in the original format should be entered here.
+#' @param purities_samples_to_correct The output of the purity_estimation
+#' function in the original format should be entered here. If the user intends
+#' to use any alternative format a dataframe with sample IDs in the first column
+#' and sample purity could be eneterd here after setting the purities_purebeta_format
+#' argument to FALSE (IMPORTANT! The user MUST enter sample purity values, not 1-Purity
+#' values).
+#'
+#' @param purities_purebeta_format Default = TRUE. If the user wanted to use a
+#' different input format for sample purity (see purities_samples_to_correct
+#' for the format especifications) this argument should be set to FALSE.
 #'
 #' @param only_certain_CpGs Default = FALSE. If the beta correction has to be
 #' applied only to certain CpGs and not to all the ones included in the matrix
@@ -35,8 +44,12 @@
 #'
 #' @param reference_regressions The output of the reference regression generator
 #' should be entered here if the refitting argument has NOT been set to TRUE.
-#' Else, this argument should be ignored. This argument accepts both, the normal
-#' and extended versions of the reference_regression_generator function's output.
+#' Else, this argument should be ignored (both short and extended versions are
+#' valid). The input list must at least include the list contains the a named
+#' vector with the variance of the betas of CpGs used to build the regressions
+#' (input$cpg.variance), the slopes, intercepts residual standard error and
+#' degrees of freedom of the regression calculated per CpG (input$reg.slopes,
+#' input$reg.intercepts, input$reg.RSE and input$df as matrices).
 #'
 #' @param reference_betas A matrix with CpGs as rows and analysed samples (or an
 #' individual sample) as columns with the uncorrected beta values from the CpGs
@@ -104,10 +117,12 @@
 #'                                 seed_num = 1,
 #'                                 cores = 5)
 #'
+#'
 reference_based_beta_correction <- function(
 
   betas_to_correct,
   purities_samples_to_correct,
+  purities_purebeta_format = TRUE,
   only_certain_CpGs = FALSE,
   CpGs_to_correct_vector,
   refitting,
@@ -145,35 +160,48 @@ reference_based_beta_correction <- function(
     invisible(clusterEvalQ(cl, {library("flexmix")}))
 
     # Export all the functions in the package to the defined cores
-    parallel::clusterExport(cl = cl, 
+    parallel::clusterExport(cl = cl,
                   varlist = unclass(lsf.str(envir = asNamespace("PureBeta"), all = TRUE)),
                   envir = as.environment(asNamespace("PureBeta")))
 
-    
+
 
     # PROCESSING PREDICTED PURITIES
 
     cat("\nPreprocessing the data...\n\n")
 
-    # Getting predicted 1-purities from purity_estimation output
-    predicted_1mPurities <- purities_samples_to_correct$`Estimated_1-Purities`
+    if (purities_purebeta_format == TRUE) {
 
-    # Removing samples with more than one estimates (if any)
-    if (nrow(predicted_1mPurities[which(predicted_1mPurities[,2]!=1),])!=0) {
+      # Getting predicted 1-purities from purity_estimation output
+      predicted_1mPurities <- purities_samples_to_correct$`Estimated_1-Purities`
 
-      #Calculate the number of samples to remove
-      samples_to_remove <- nrow(predicted_1mPurities[which(predicted_1mPurities[,2]!=1),]) / 2
+      # Removing samples with more than one estimates (if any)
+      if (nrow(predicted_1mPurities[which(predicted_1mPurities[,2]!=1),])!=0) {
 
-      #Print warining message
-      cat("\n", samples_to_remove, "samples have more than one predicted purity. Samples removed from the beta correction.\n")
+        #Calculate the number of samples to remove
+        samples_to_remove <- nrow(predicted_1mPurities[which(predicted_1mPurities[,2]!=1),]) / 2
 
-      #Filtering samples with more than one purity values
-      predicted_1mPurities <- predicted_1mPurities[which(predicted_1mPurities[,2]==1),]
+        #Print warining message
+        cat("\n", samples_to_remove, "samples have more than one predicted purity. Samples removed from the beta correction.\n")
+
+        #Filtering samples with more than one purity values
+        predicted_1mPurities <- predicted_1mPurities[which(predicted_1mPurities[,2]==1),]
+      }
+
+      # Transforming the predicted_purities dataframe into a vector
+      predicted_purities_vec <- 1 - as.numeric(predicted_1mPurities[,3]) # Using purity, no 1-Purity
+      names(predicted_purities_vec) <- predicted_1mPurities[,1]
+
+    } else {
+
+      # Reassigning variable names
+      predicted_Purities <- purities_samples_to_correct
+
+      # Transforming the predicted_purities dataframe into a vector
+      predicted_purities_vec <- as.numeric(predicted_Purities[,2]) # Using Purity
+      names(predicted_purities_vec) <- predicted_Purities[,1]
+
     }
-
-    # Transforming the predicted_purities dataframe into a vector
-    predicted_purities_vec <- 1 - as.numeric(predicted_1mPurities[,3]) # Using purity, no 1-Purity
-    names(predicted_purities_vec) <- predicted_1mPurities[,1]
 
 
     # FILTERING CPGS
@@ -308,39 +336,49 @@ reference_based_beta_correction <- function(
     registerDoSNOW(cl)
 
     # Exporting all the functions of the package to the clusters
-    parallel::clusterExport(cl = cl, 
+    parallel::clusterExport(cl = cl,
                   varlist = unclass(lsf.str(envir = asNamespace("PureBeta"), all = TRUE)),
                   envir = as.environment(asNamespace("PureBeta")))
 
-    
+
     # PROCESSING PREDICTED PURITIES
 
     cat("\nPreprocessing the data...\n\n")
 
-    # Getting predicted 1-purities from purity_estimation output
-    predicted_1mPurities <- purities_samples_to_correct$`Estimated_1-Purities`
+    if (purities_purebeta_format == TRUE) {
 
+      # Getting predicted 1-purities from purity_estimation output
+      predicted_1mPurities <- purities_samples_to_correct$`Estimated_1-Purities`
 
-    # Removing samples with more than one estimates (if any)
-    if (nrow(predicted_1mPurities[which(predicted_1mPurities[,2]!=1),])!=0) {
+      # Removing samples with more than one estimates (if any)
+      if (nrow(predicted_1mPurities[which(predicted_1mPurities[,2]!=1),])!=0) {
 
-      #Calculate the number of samples to remove
-      samples_to_remove <- nrow(predicted_1mPurities[which(predicted_1mPurities[,2]!=1),]) / 2
+        #Calculate the number of samples to remove
+        samples_to_remove <- nrow(predicted_1mPurities[which(predicted_1mPurities[,2]!=1),]) / 2
 
-      #Print warning message
-      cat("\n", samples_to_remove, "samples have more than one predicted purity. Samples removed from the beta correction.\n")
+        #Print warining message
+        cat("\n", samples_to_remove, "samples have more than one predicted purity. Samples removed from the beta correction.\n")
 
-      #Filtering samples with more than one purity values
-      predicted_1mPurities <- predicted_1mPurities[which(predicted_1mPurities[,2]==1),]
+        #Filtering samples with more than one purity values
+        predicted_1mPurities <- predicted_1mPurities[which(predicted_1mPurities[,2]==1),]
+      }
+
+      # Transforming the predicted_purities dataframe into a vector
+      predicted_purities_vec <- 1 - as.numeric(predicted_1mPurities[,3]) # Using purity, no 1-Purity
+      names(predicted_purities_vec) <- predicted_1mPurities[,1]
+
+    } else {
+
+      # Reassigning variable names
+      predicted_Purities <- purities_samples_to_correct
+
+      # Transforming the predicted_purities dataframe into a vector
+      predicted_purities_vec <- as.numeric(predicted_Purities[,2]) # Using Purity
+      names(predicted_purities_vec) <- predicted_Purities[,1]
+
     }
 
-
-    # Transforming the predicted_1mPurities dataframe into a vector
-    predicted_1mPurities_vec <- predicted_1mPurities[,3]
-    names(predicted_1mPurities_vec) <- predicted_1mPurities[,1]
-
-  }
-
+  # PROCESSING REGRESSION PARAMETERS
 
   # Reformatting reference regression parameters
   my_slopes <- reference_regressions$reg.slopes
@@ -456,5 +494,5 @@ reference_based_beta_correction <- function(
         "Corrected_microenvironment"  = corrected_microenvironment
       )
     )
-
+  }
 }

@@ -1,0 +1,8 @@
+load("/Users/isasiain/PhD/Projects/PureBeta/data/brca_reference_regressions.rda")
+readRDS("/Users/isasiain/PhD/Projects/PureBeta/data/brca_reference_regressions.rda")
+brca_reference_regressions <- readRDS("/Users/isasiain/PhD/Projects/PureBeta/data/brca_reference_regressions.rda")
+save(brca_reference_regressions, file="/Users/isasiain/PhD/Projects/PureBeta/data/brca_reference_regressions.rda")
+luad_reference_regressions <- readRDS("/Users/isasiain/PhD/Projects/PureBeta/data/luad_reference_regressions.rda")
+save(luad_reference_regressions, file="/Users/isasiain/PhD/Projects/PureBeta/data/luad_reference_regressions.rda")
+lusc_reference_regressions <- readRDS("/Users/isasiain/PhD/Projects/PureBeta/data/lusc_reference_regressions.rda")
+save(lusc_reference_regressions, file="/Users/isasiain/PhD/Projects/PureBeta/data/lusc_reference_regressions.rda")

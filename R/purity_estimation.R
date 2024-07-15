@@ -2,21 +2,24 @@
 #'
 #' The purity_estimation() function estimates tumour sample purity based on DNA methylation
 #' beta values and reference linear models that reflect the correlation between
-#' tumour purity and beta values in each analysed CpG.This function can be
+#' tumour purity and beta values in each analysed CpG. This function can be
 #' applied to both single and multiple samples in each run and allows multi-core
 #' execution.
 #'
-#' @param reference_regressions List objects containing the parameters of the
+#' @param reference_regressions List object containing the parameters of the
 #' reference regressions determined using the reference_regression_generator()
-#' function (both short and extended versions are valid). The input list must
-#' at least include the regs$reg.slopes, regs$reg.intercepts, regs$reg.RSE
-#' regs$cpg.variance fields.
+#' function (both short and extended versions are valid). The input must
+#' at least include the list containing a named vector with the variance of
+#' the betas of CpGs used to build the regressions (input$cpg.variance), the slopes,
+#' intercepts residual standard error and degrees of freedom of the regression
+#' calculated per CpG (input$reg.slopes, input$reg.intercepts, input$reg.RSE
+#' and input$df as matrices).
 #'
 #' @param beta_values A matrix with CpGs as rows and analysed samples (or an
 #' individual sample) as columns with the uncorrected beta values from the CpGs
-#' of the samples that are intended to be corrected. The values must be numeric,
-#' the rows must be names with the CpG ID, and the columns with the sample IDs.
-#' An example of the required format is available in the
+#' of the samples whose purities are intended to be estimated. The values must
+#' be numeric, the rows must be names with the CpG ID, and the columns with the
+#' sample IDs. An example of the required format is available in the
 #' example_betas_to_correct matrix.
 #'
 #' @param alpha Default = 0.7. The alpha value used to determine the width of
@@ -25,30 +28,34 @@
 #' increase the prediction error.
 #'
 #' @param slope_threshold Default = 0.2. Minimum slope allowed per regression
-#' for them to be taken into consideration in the sample purity estimation. The
-#' regression below the threshold can increase the prediction error, and
-#' therefore will be considered uninformative an ignored
+#' for them to be taken into consideration in the sample purity estimation. he
+#' inclusion of regressions below the threshold can increase the prediction error,
+#' and therefore will be considered uninformative an ignored.
 #'
 #' @param variance_threshold Default = 0.05. CpG beta value variance cutoff to
 #' filter reference data. If the CpGs are not variable enough PureBeta can not
 #' obtain information for the estimation. These CpGs are non-informative and can
 #' increase the execution time and the prediction error.
 #'
-#'
 #' @param proportion_to_interval Default = 0.96. Percentage of the maximum 1 -
 #' purity coverage detected to include in the estimated the 1-Purity interval.
-#' A lower value will generate wide intervals, and a higher one narrow ranges.
+#' A lower value will generate wider intervals, and a higher one narrower ranges.
 #'
 #' @param cores Default = 1. Number of cores to be used to run the function in
 #' parallel.
+#'
+#' @param extended_output Default = FALSE. Set this argument to TRUE if the user
+#' wants to obtain the CpGs used (informative for the estimation) for the purity
+#' estimation of each analysed sample in the output list.
 #'
 #' @returns List containing a data frame with the predicted 1 - Purity values
 #' (output$`Estimated_1mPurities`). It contains the identified estimates (in very
 #' exceptional cases it could be different to 1) the estimated 1-Purity values
 #' and intervals predicted per each sample. If more than one estimates are
 #' obtained, one independent line per estimate will be created in the data frame.
-#' List with the CpGs used for the purity prediction of each sample after the
-#' filtering steps (output$`Used_CpGs`).
+#' A list with the CpGs used for the purity prediction of each sample after the
+#' filtering steps is also included in the output list (output$`Used_CpGs`) if
+#' the extended_output = TRUE option is selected.
 #'
 #' @export
 #'
@@ -65,7 +72,8 @@
 #'                   slope_threshold = 0.25,
 #'                   variance_threshold = 0.06,
 #'                   proportion_to_interval = 0.93,
-#'                   cores = 5)
+#'                   cores = 5,
+#'                   extended_output = TRUE)
 #'
 purity_estimation <- function(
 
@@ -75,7 +83,8 @@ purity_estimation <- function(
   slope_threshold = 0.2,
   variance_threshold = 0.05,
   proportion_to_interval = 0.96,
-  cores = 1
+  cores = 1,
+  extended_output = FALSE
 ) {
 
   #
@@ -115,7 +124,7 @@ purity_estimation <- function(
   registerDoSNOW(cl)
 
   # Export all the functions in the package to the defined cores
-  parallel::clusterExport(cl = cl, 
+  parallel::clusterExport(cl = cl,
                   varlist = unclass(lsf.str(envir = asNamespace("PureBeta"), all = TRUE)),
                   envir = as.environment(asNamespace("PureBeta")))
 
@@ -222,9 +231,14 @@ purity_estimation <- function(
   colnames(output_df) <- cols
 
 
-  # Adding values to output list
+  # Adding purity estimates
   output_list$"Estimated_1-Purities" = output_df
-  output_list$"Used_CpGs" = list_of_used_cpgs
+
+  # Adding uised CpGs for purity estimation if the user requires so.
+  if (extended_output) {
+    output_list$"Used_CpGs" = list_of_used_cpgs
+  }
+
 
 
   cat("\n\n=================\n")

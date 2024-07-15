@@ -2,7 +2,7 @@
 % Please edit documentation in R/reference_regression_generator.R
 \name{reference_regression_generator}
 \alias{reference_regression_generator}
-\title{reference_regression_generator}
+\title{Reference regression generator}
 \usage{
 reference_regression_generator(
   beta_values,
@@ -59,7 +59,7 @@ the reference regressions per CpG (output$cpg.populations).
 }
 \description{
 This function generates the reference regressions' parameters and variance of
-the used reference CpGs required to be used in subsequent steps of the PureBeta
+the reference CpGs required in subsequent steps of the PureBeta
 workflow based on the Staaf & Aine methylation beta value correction strategy.
 This function allows multi-core execution.
 }

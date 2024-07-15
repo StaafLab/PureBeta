@@ -7,6 +7,7 @@
 reference_based_beta_correction(
   betas_to_correct,
   purities_samples_to_correct,
+  purities_purebeta_format = TRUE,
   only_certain_CpGs = FALSE,
   CpGs_to_correct_vector,
   refitting,
@@ -26,8 +27,16 @@ the rows must be named with the CpG ID, and the columns with the sample IDs.
 An example of the required format is available in the example_betas_to_correct
 matrix.}
 
-\item{purities_samples_to_correct}{The output of the purity_estimation tumour sample
-purity estimation function in the original format should be entered here.}
+\item{purities_samples_to_correct}{The output of the purity_estimation
+function in the original format should be entered here. If the user intends
+to use any alternative format a dataframe with sample IDs in the first column
+and sample purity could be eneterd here after setting the purities_purebeta_format
+argument to FALSE (IMPORTANT! The user MUST enter sample purity values, not 1-Purity
+values).}
+
+\item{purities_purebeta_format}{Default = TRUE. If the user wanted to use a
+different input format for sample purity (see purities_samples_to_correct
+for the format especifications) this argument should be set to FALSE.}
 
 \item{only_certain_CpGs}{Default = FALSE. If the beta correction has to be
 applied only to certain CpGs and not to all the ones included in the matrix
@@ -44,8 +53,12 @@ beta correction.}
 
 \item{reference_regressions}{The output of the reference regression generator
 should be entered here if the refitting argument has NOT been set to TRUE.
-Else, this argument should be ignored. This argument accepts both, the normal
-and extended versions of the reference_regression_generator function's output.}
+Else, this argument should be ignored (both short and extended versions are
+valid). The input list must at least include the list contains the a named
+vector with the variance of the betas of CpGs used to build the regressions
+(input$cpg.variance), the slopes, intercepts residual standard error and
+degrees of freedom of the regression calculated per CpG (input$reg.slopes,
+input$reg.intercepts, input$reg.RSE and input$df as matrices).}
 
 \item{reference_betas}{A matrix with CpGs as rows and analysed samples (or an
 individual sample) as columns with the uncorrected beta values from the CpGs
@@ -85,12 +98,13 @@ addition to the parameters of the refitted new regressions
 (output$`Regression_parameters`).
 }
 \description{
-This script corrects beta values of samples whose purity has been estimated
- based on a reference cohort following two approaches, refitting the reference
- regressions to include both, the reference data points and the new ones
- (betas to correct + estimated purity) or without refitting the reference
- regressions, using directly the original reference linear models for the
- correction. This function allows multi-core execution.
+This function adjusts CpG beta values for tumor cells and inferred
+normal cells using reference regressions and estimated purities. This can
+be carried out refitting the regressions to include the new data points
+(betas + estimated purities) or using the original reference regressions. Unlike
+beta_correction_for_cohorts(), this function does not require the usage
+of a full cohort of samples, as it is single sample and single CpG applicable.
+This function allows multi-core execution.
 }
 \examples{
 
@@ -122,5 +136,6 @@ reference_based_beta_correction(betas_to_correct = example_betas_to_correct,
                                 set_seed = TRUE,
                                 seed_num = 1,
                                 cores = 5)
+
 
 }
