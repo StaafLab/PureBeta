@@ -47,8 +47,8 @@ The PureBeta package is divided into four main functions:
 ## Data
 
 This package includes precomputed reference regressions that model the correlation
-between DNA methylation beta value and sample purities obtained from **The Cancer 
-Genome Atlas** in three different cancer types: 
+between DNA methylation beta value and sample purities obtained from *The Cancer 
+Genome Atlas* for three different cancer types: 
 
 * Breast Cancer (BRCA)
 * Lung Adenocarcinoma (LUAD) 
