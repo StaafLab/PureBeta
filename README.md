@@ -17,7 +17,7 @@ library(PureBeta)
 ```
 ## Summary
 
-Solid tumous are complex mixtures of tumor cells, and non-malignant cells such 
+Solid tumous are complex mixtures of tumor cells and non-malignant cells such 
 as leukocytes or non-immune stromal cells. Consequently, DNA methylation estimated
 from tumor samples is a mixture of the signal obtained from the malignant and
 non-malignant section of the tumor. Here we present PureBeta, an R package that allows
@@ -55,7 +55,7 @@ Genome Atlas* for three different cancer types:
 * Lung Squamous cell carcinoma (LUSC). 
 
 Additionally, it also includes small example datsets (reference purities,
-betas and betas to correct) obtained from the 5000 most variable CpGs in the TCGA-BRCA
+betas and betas to correct) obtained from the 5000 most variable CpGs of the TCGA-BRCA
 dataset to test the execution of the package's functions.
 
 ### License
