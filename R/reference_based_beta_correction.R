@@ -137,12 +137,19 @@ reference_based_beta_correction <- function(
 
   if (refitting == TRUE) {
 
-    #Making sure that all cores have access to the flexmix package and the
-    #adjustBeta function. Using invisible() to avoid printing anything to the
-    #terminal
+
     registerDoParallel(cl)
+
+    #Making sure that all cores have access to the flexmix package and the
+    #Using invisible() to avoid printing anything to the terminal
     invisible(clusterEvalQ(cl, {library("flexmix")}))
-    parallel::clusterExport("adjustBeta")
+
+    # Export all the functions in the package to the defined cores
+    parallel::clusterExport(cl = cl, 
+                  varlist = unclass(lsf.str(envir = asNamespace("PureBeta"), all = TRUE)),
+                  envir = as.environment(asNamespace("PureBeta")))
+
+    
 
     # PROCESSING PREDICTED PURITIES
 
@@ -297,7 +304,10 @@ reference_based_beta_correction <- function(
 
   } else {
 
+    # Registering clusters
     registerDoSNOW(cl)
+
+    # Exporting all the functions of the package to the clusters
     parallel::clusterExport(cl = cl, 
                   varlist = unclass(lsf.str(envir = asNamespace("PureBeta"), all = TRUE)),
                   envir = as.environment(asNamespace("PureBeta")))

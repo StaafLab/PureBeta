@@ -81,8 +81,10 @@ beta_correction_for_cohorts <- function(
   #to avoid printing anything to the terminal.
   invisible(clusterEvalQ(cl, {library("flexmix")}))
 
-  # Ensuring the cluster is stopped properly
-  on.exit(stopCluster(cl), add = TRUE)
+  # Export all the functions in the package to the defined cores
+  parallel::clusterExport(cl = cl, 
+                  varlist = unclass(lsf.str(envir = asNamespace("PureBeta"), all = TRUE)),
+                  envir = as.environment(asNamespace("PureBeta")))
 
 
   # ======================
@@ -121,6 +123,8 @@ beta_correction_for_cohorts <- function(
                  seed=set_seed, #Specify if the seed has been added to the data or not
                  X = betaRun)) #Beta values+the added seed
 
+  # Ensuring the cluster is stopped properly
+  stopCluster(cl)
 
   # =================
   # GENERATING OUTPUT
