@@ -19,7 +19,7 @@ library(PureBeta)
 
 Solid tumous are complex mixtures of tumor cells, and non-malignant cells such 
 as leukocytes or non-immune stromal cells. Consequently, DNA methylation estimated
-from tumor samples is in fact a mixture of the signal coming from the malignant and
+from tumor samples is a mixture of the signal obtained from the malignant and
 non-malignant section of the tumor. Here we present PureBeta, an R package that allows
 for the adjustment of DNA methylation beta values to account for the effect of sample
 composition. This package, allows for the correction of complete cohorts of samples with
