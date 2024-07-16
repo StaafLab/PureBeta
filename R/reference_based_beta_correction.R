@@ -438,7 +438,7 @@ reference_based_beta_correction <- function(
 
     identified_regressions <- identify_regression(
       vec_betas = as.numeric(betas_to_correct[cpg,]),
-      vec_estimated_1mPurity = 1 - predicted_Purities_vec,
+      vec_estimated_1mPurity = 1 - predicted_purities_vec,
       vec_slopes = as.numeric(my_slopes[cpg,]),
       vec_intercepts = as.numeric(my_intercepts[cpg,])
     )
