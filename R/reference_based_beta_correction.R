@@ -284,7 +284,6 @@ reference_based_beta_correction <- function(
     # Stop clusters used in parallelization
     stopCluster(cl)
 
-
     # GENERATING RESULT LIST
 
     cat("\n\nGenerating output...\n\n")
@@ -292,9 +291,9 @@ reference_based_beta_correction <- function(
 
     # Creating a list to add the results
     result_list <- list(
-      betas.original = do.call("rbind",lapply(res,function(x) x$y.orig)), #Original beta values
-      betas.tumor = do.call("rbind",lapply(res,function(x) x$y.tum)), #Corrected tumor beta values
-      betas.microenvironment = do.call("rbind",lapply(res,function(x) x$y.norm)) #Corrected microenvironment beta values
+      betas.original = do.call("rbind",lapply(res,function(x) x$y.orig[names(predicted_purities_vec)])), #Original beta values
+      betas.tumor = do.call("rbind",lapply(res,function(x) x$y.tum[names(predicted_purities_vec)])), #Corrected tumor beta values
+      betas.microenvironment = do.call("rbind",lapply(res,function(x) x$y.norm[names(predicted_purities_vec)])) #Corrected microenvironment beta values
     )
 
     # Creating a list to add the parameters of the correction regressions
