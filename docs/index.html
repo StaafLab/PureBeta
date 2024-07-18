@@ -70,41 +70,41 @@
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
-<p>Solid tumous are complex mixtures of tumor cells and non-malignant cells such as leukocytes or non-immune stromal cells. Consequently, DNA methylation estimated from tumor samples is a mixture of the signal obtained from the malignant and non-malignant section of the tumor. Here we present PureBeta, a R package that allows for the adjustment of DNA methylation beta values to account for the effect of sample composition. This package, allows for the correction of complete cohorts of samples with known sample purities and CpG beta values and for the estimation of sample purity, and subsequent beta correction using reference data and uncorrected beta values of data sets (or single samples) without known sample purities.</p>
+<p>Solid tumors are complex mixtures of tumor cells and non-malignant cells such as leukocytes and non-immune stromal cells. Consequently, DNA methylation data estimated from tumor samples are a mixture of signals obtained from the malignant and non-malignant sections of the tumor. Here we present PureBeta, an R package that allows for the adjustment of DNA methylation beta values to account for the effect of sample composition. This package allows for the correction of complete cohorts of samples with known sample purities and CpG beta values, and for the estimation of sample purity and subsequent beta correction using reference data and uncorrected beta values of data sets (or single samples) without known sample purities.</p>
 </div>
 <div class="section level2">
 <h2 id="framework">Framework<a class="anchor" aria-label="anchor" href="#framework"></a>
 </h2>
-<p>The PureBeta package is divided into four main functions:</p>
+<p>The PureBeta package is divided into four main functions described below. For more information such as parameters, click on "Reference" at the top of this page and then on the function name.</p>
 <ol style="list-style-type: decimal">
 <li><p><em>Correction of beta values from a cohort with known sample purities</em>: The function <strong><em>beta_correction_for_cohorts()</em></strong> performs beta value adjustment for tumor sample composition based on the original Staaf &amp; Aine beta correction approch, correcting betas from a cohort of samples with known sample purities. More information about this approach can be found in the original publication: <a href="https://doi.org/10.1371/journal.pone.0265557" class="external-link">Staaf &amp; Aine, PLosOne, 2022</a>.</p></li>
 <li><p><em>Creation of reference data from a cohort</em>: in the <strong><em>reference_regressions_generator()</em></strong> function, reference linear regressions are calculated based on DNA methylation beta values and tumor purity estimates of a cohort. Each regression represents a sample population as shown in the figure below.</p></li>
 </ol>
 <img src="./reference/figures/module1.png" width="350"><ol start="3" style="list-style-type: decimal">
 <li>
-<em>Estimation of tumor purities for individual samples</em>: in the <strong><em>purity_estimation()</em></strong> function, CpGs are first filtered based on beta variance removing the non-informatoive ones. Each CpG is then processed individually obtaining a sample purity interval. Finally, all the obtained intervals per sample are integrated obtaining a sample purity estimate.</li>
+<em>Estimation of tumor purities for individual samples</em>: in the <strong><em>purity_estimation()</em></strong> function, CpGs are first filtered based on beta variance removing those considered to be non-informatoive. Each CpG is then processed individually obtaining a sample purity interval. Finally, all the obtained intervals per sample are integrated generating a purity estimate for the sample.</li>
 </ol>
 <p><img src="./reference/figures/module2.png"></p>
 <ol start="4" style="list-style-type: decimal">
 <li>
-<em>Adjustment of beta values per CpG and sample</em>: in the <strong><em>reference_based_beta_correction()</em></strong> function, beta values are adjusted for sample composition using reference regressions and estimated purities. This can be peformed following two approaches: refitting the regressions to include the new data points (betas to correct + estimated purities) or using the original reference regressions. Unlike <strong>beta_correction_for_cohorts()</strong>, this function does not require the usage of a full cohort of samples, as it is single sample and single CpG applicable.</li>
+<em>Adjustment of beta values per CpG and sample</em>: in the <strong><em>reference_based_beta_correction()</em></strong> function, beta values are adjusted for sample composition using reference regressions and estimated purities. This can be peformed following two approaches: refitting the regressions to include the new data points (betas to correct + estimated purities) or using the original reference regressions. Unlike <strong>beta_correction_for_cohorts()</strong>, this function does not require the usage of a full cohort of samples, as it is applicable to a single sample and single CpG.</li>
 </ol>
 <p><img src="./reference/figures/module3.png"></p>
 </div>
 <div class="section level2">
 <h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
 </h2>
-<p>This package includes precomputed reference regressions that model the correlation between DNA methylation beta value and sample purities obtained from <strong>The Cancer Genome Atlas</strong> in three different cancer types:</p>
+<p>This package includes precomputed reference regressions that model the correlation between DNA methylation beta values and sample purities obtained from <strong>The Cancer Genome Atlas</strong> for three different cancer types:</p>
 <ul>
 <li>Breast Cancer (BRCA)</li>
 <li>Lung Adenocarcinoma (LUAD)</li>
-<li>Lung Squamous cell carcinoma (LUSC).</li>
+<li>Lung Squamous Cell Carcinoma (LUSC)</li>
 </ul>
-<p>Additionally, it also includes small example datsets (reference purities, betas and betas to correct) obtained from the 5000 most variable CpGs in the TCGA-BRCA dataset to test the execution of the package’s functions.</p>
+<p>Additionally, it includes small example data sets (purities and original beta values of a reference set with less samples, and original betas from a larger cohort) obtained from the 5000 most variable CpGs in the TCGA BRCA data set to test the execution of the package’s functions.</p>
 <div class="section level3">
 <h3 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h3>
-<p>The PureBeta R package is under the GPL-3.0 license. A copy of this license is included with the R package.</p>
+<p>The PureBeta R package is under the GPL-3.0 license. A copy of this license is included with the package.</p>
 </div>
 </div>
 
