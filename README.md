@@ -1,4 +1,6 @@
-<font size="20">**PureBeta** </font>  <a href="https://staaflab.github.io/PureBeta/"><img src="man/figures/logo.png" align="right" height="278" alt="PureBeta website" /></a>
+## PureBeta
+
+<a href="https://staaflab.github.io/PureBeta/"><img src="man/figures/logo.png" align="right" height="200" alt="PureBeta website" /></a>
 
 Method for calculating tumor purity and adjusting Illumina 450/850K DNA methylation beta values. This work has been described in the article "**Tumor purity estimated from bulk DNA methylation can be used for adjusting beta values of individual samples to better reflect tumor biology**" published by [Sasiain, Nacer et al. in *JOURNAL*](LINK).
 
@@ -43,6 +45,8 @@ The PureBeta package is divided into four main functions:
 4. *Adjustment of beta values per CpG and sample*: in the ***reference_based_beta_correction()*** function, beta values are adjusted for sample composition using reference regressions and estimated purities. This can be performed following two approaches: refitting the regressions to include the new data points (betas to correct + estimated purities) or using the original reference regressions. Unlike **beta_correction_for_cohorts()**, this function does not require the usage of a full cohort of samples, as it is applicable to a single sample and a single CpG.
 
 ![](./man/figures/module3.png)
+
+For more information on each of the functions, go to [staaflab.github.io/PureBeta/](staaflab.github.io/PureBeta/) and click on Reference at the top of the page. 
 
 ## Data
 
