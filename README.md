@@ -46,7 +46,7 @@ The PureBeta package is divided into four main functions:
 
 ![](./man/figures/module3.png)
 
-For more information on each of the functions, go to [staaflab.github.io/PureBeta/](staaflab.github.io/PureBeta/) and click on Reference at the top of the page. 
+For more information on each of the functions, go to [our webpage](https://staaflab.github.io/PureBeta/) and click on Reference at the top of the page. 
 
 ## Data
 
