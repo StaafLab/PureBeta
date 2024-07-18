@@ -42,7 +42,7 @@ The PureBeta package is divided into four main functions:
 
 ![](./man/figures/module2.png)
 
-4. *Adjustment of beta values per CpG and sample*: in the ***reference_based_beta_correction()*** function, beta values are adjusted for sample composition using reference regressions and estimated purities. This can be performed following two approaches: refitting the regressions to include the new data points (betas to correct + estimated purities) or using the original reference regressions. Unlike **beta_correction_for_cohorts()**, this function does not require the usage of a full cohort of samples, as it is applicable to a single sample and a single CpG.
+4. *Adjustment of beta values per CpG and sample*: in the ***reference_based_beta_correction()*** function, beta values are adjusted for sample composition using reference regressions and estimated purities. This can be performed following two approaches: refitting the regressions to include the new data points (betas to correct + estimated purities) or using the original reference regressions. Unlike **beta_correction_for_cohorts()**, this function does not require the usage of a full cohort of samples, as it is applicable to a single sample and a single CpG. DNA methylation beta values and estimated purities for TCGA BRCA, LUAD, and LUSC samples are available on [FigShare](https://doi.org/10.6084/m9.figshare.26272864) for the refitting approach.
 
 ![](./man/figures/module3.png)
 
