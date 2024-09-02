@@ -43,9 +43,10 @@
 #' output$reg.intercepts, output$reg.RSE and output$df). If the extended output
 #' list is required it will also include the original uncorrected beta values
 #' (output$betas.original), the corrected tumour beta values (output$betas.tumour),
-#' the corrected microenvironment beta values (output$betas.microenvironment) and
-#' the methylation pattern or population assigned to each sample used to buld
-#' the reference regressions per CpG (output$cpg.populations).
+#' the corrected microenvironment beta values (output$betas.microenvironment), the
+#' original purity values (output$purities) the methylation pattern or population 
+#' assigned to each sample used to buldthe reference regressions per CpG 
+#' (output$cpg.populations).
 #'
 #' @export
 #'
@@ -175,7 +176,8 @@ reference_regression_generator <- function(
       reg.slopes = do.call("rbind",lapply(res,function(x) x$res.slopes)), #Slopes of the populations
       reg.intercepts = do.call("rbind",lapply(res,function(x) x$res.int)), #Intercepts of the populations
       reg.RSE = do.call("rbind",lapply(res,function(x) x$res.rse)), #Residual standard error
-      reg.df = do.call("rbind",lapply(res,function(x) x$res.df)) #Degrees of freedom of the reversed regressions
+      reg.df = do.call("rbind",lapply(res,function(x) x$res.df)), #Degrees of freedom of the reversed regressions
+      purities = tumour_purities #Reference umour purities
     )
 
   } else {

@@ -13,7 +13,9 @@
 #' the betas of CpGs used to build the regressions (input$cpg.variance), the slopes,
 #' intercepts residual standard error and degrees of freedom of the regression
 #' calculated per CpG (input$reg.slopes, input$reg.intercepts, input$reg.RSE
-#' and input$df as matrices).
+#' and input$df as matrices). If the prediction intervals for each regression
+#' are intended to be calculated through bootstrapping instead of assuming t
+#' distrbution the extended version of the regressions is required.
 #'
 #' @param beta_values A matrix with CpGs as rows and analysed samples (or an
 #' individual sample) as columns with the uncorrected beta values from the CpGs
@@ -48,7 +50,17 @@
 #' wants to obtain the CpGs used (informative for the estimation) for the purity
 #' estimation of each analysed sample in the output list.
 #'
-#' @returns List containing a data frame with the predicted 1 - Purity values
+#' @param assume_t_distribution Default = TRUE. Set this argument to FALSE if the user
+#' does not want to use the t statistic to calculate prediction intervals from each of the 
+#' refernce regression. In this case the interval will be determined through bootstrapping,
+#' a non-parametric strategy that may signifcantly increase the execution time.
+#'
+#' @param Boost_N The number of times the that the values will be bootstrapped to generate
+#' the prediction interval should be entered here if assume_t_distribution = FALSE. While an 
+#' excessively low number will generate an unreliable output, choosing an excesively high value
+#' will significantly decrease the function's execution speed.
+#'
+#' @returns extended_output List containing a data frame with the predicted 1 - Purity values
 #' (output$`Estimated_1mPurities`). It contains the identified estimates (in very
 #' exceptional cases it could be different to 1) the estimated 1-Purity values
 #' and intervals predicted per each sample. If more than one estimates are
@@ -75,6 +87,14 @@
 #'                   cores = 5,
 #'                   extended_output = TRUE)
 #'
+#' # Using bootstrapping
+#' purity_estimation(reference_regressions = output_from_reference_regression_generator,
+#'                   beta_values = example_betas_to_correct,
+#'                   cores = 5,
+#'                   extended_output = TRUE,
+#'                   assume_t_distribution = FALSE,
+#'                   Boots_N = 1000)
+#'
 purity_estimation <- function(
 
   reference_regressions,
@@ -84,6 +104,8 @@ purity_estimation <- function(
   variance_threshold = 0.05,
   proportion_to_interval = 0.96,
   cores = 1,
+  assume_t_distribution = TRUE,
+  Boots_N = NULL,
   extended_output = FALSE
 ) {
 
@@ -135,6 +157,8 @@ purity_estimation <- function(
 
   # Printing command line message
   cat("\nRunning the analysis...\n\n")
+
+if (assume_t_distribution) {
 
   # Getting the names of the samples to analyse
   samples <- colnames(beta_values)
@@ -190,6 +214,76 @@ purity_estimation <- function(
   # The sample id is used to identify each element of the list
   list_of_predicted_intervals <- setNames(lapply(out_list, function(x) x$value), sapply(out_list, function(x) x$name))
   list_of_used_cpgs <- setNames(sapply(out_list, function(x) x$cpgs), sapply(out_list, function(x) x$name))
+
+} else {
+
+    # Getting the names of the samples to analyse
+  samples <- colnames(beta_values)
+
+  # Defining the progress bar
+  p_bar <- txtProgressBar(min = 0,
+                          max = length(samples),
+                          style = 3,
+                          width = 80)
+
+  # Creating a function to follow the execution of the script
+  progress <- function(n) setTxtProgressBar(p_bar, n)
+  opts <- list(progress = progress)
+
+  # Running the sourced functions in parallel for each sample. The execution level will be followed through a progress bar
+  out_list <- foreach(s = samples,
+                      .packages = "Kendall",
+                      .options.snow = opts) %dopar% {
+
+
+    # Defining an empty matrix with the cpg ids as rownames to add the all the 1-Purity predicted intervals for all
+    # the CpGs of a sample
+    interval_mat <- matrix(ncol=2, nrow=length(rownames(beta_values)))
+    rownames(interval_mat) <- rownames(beta_values)
+
+    # Predicting all the 1-Purity intervals for each CpG of each sample and append them to the empty interval_mat
+    for (cpg in rownames(beta_values)) {
+
+      # The following if statement will be used to take into account only CpGs included into the
+      # refernce regression dataset
+      if (cpg %in% rownames(reference_regressions$reg.slopes)) {
+
+        interval_mat[cpg,] <- predicting_purity(beta=beta_values[cpg, s],
+                                                 slopes=reference_regressions$reg.slopes[cpg, ],
+                                                 intercepts=reference_regressions$reg.intercepts[cpg, ],
+                                                 RSE=reference_regressions$reg.RSE[cpg, ],
+                                                 degrees_of_freedom=reference_regressions$reg.df[cpg, ],
+                                                 slope_threshold=slope_threshold,
+                                                 populations=reference_regressions$cpg.populations[cpg, ],
+                                                 original_betas = reference_regressions$betas.original[cpg, ],
+                                                 original_purities = reference_regressions$purities,
+                                                 B = Boots_N,
+                                                 alpha = alpha
+        )
+
+      }
+    }
+
+
+    # Calculate the 1-Purity estimate and interval for the sample analysed.
+    # The results with be shown in list named with the sample id
+    list(name = s,
+        cpgs = rownames(na.omit(interval_mat)),
+        intervals = interval_mat,
+        value = purity_coverage(pred_purity_confidence=interval_mat,
+                                interval_threshold=100*(1-proportion_to_interval))
+     )
+  }
+
+
+  # Append the list defined for each sample to the list containing the predicted values for all the samples.
+  # The sample id is used to identify each element of the list
+  list_of_predicted_intervals <- setNames(lapply(out_list, function(x) x$value), sapply(out_list, function(x) x$name))
+  list_of_used_cpgs <- setNames(sapply(out_list, function(x) x$cpgs), sapply(out_list, function(x) x$name))
+  list_of_cpg_intervals <- setNames(lapply(out_list, function(x) x$intervals), sapply(out_list, function(x) x$name))
+
+}
+
 
 
   #

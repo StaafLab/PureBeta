@@ -201,87 +201,211 @@ predicting_purity <- function(
     RSE,
     degrees_of_freedom,
     slope_threshold,
-    alpha
+    alpha,
+    assume_t_distribution = TRUE,
+    populations = NULL,
+    original_betas = NULL,
+    original_purities = NULL,
+    B = NULL
 
   ) {
 
-    #Identifying the regressions whose residual standard error is over the threshold
-    # and whose slope is too close to 0 to be informative
-    to_be_ignored <- (slopes > -slope_threshold & slopes < slope_threshold) | is.na(slopes)
+    if (assume_t_distribution) {
 
-    # Removing the values that do not meet the conditions previously analysed.
-    slopes <- slopes[!to_be_ignored]
-    intercepts <- intercepts[!to_be_ignored]
-    RSE <- RSE[!to_be_ignored]
-    degrees_of_freedom <- degrees_of_freedom[!to_be_ignored]
+      # Identifying the regressions whose residual standard error is over the threshold
+      # and whose slope is too close to 0 to be informative
+      to_be_ignored <- (slopes > -slope_threshold & slopes < slope_threshold) | is.na(slopes)
 
-    # Check that all the regressions are not uninformative and execute the following code
-    # to estimate the 1-Purity value. If they weren't NA would be assigned to the 1-Purity value,
-    # so that CpG would not be used to estimate the final 1-Purity of the sample
+      # Removing the values that do not meet the conditions previously analysed.
+      slopes <- slopes[!to_be_ignored]
+      intercepts <- intercepts[!to_be_ignored]
+      RSE <- RSE[!to_be_ignored]
+      degrees_of_freedom <- degrees_of_freedom[!to_be_ignored]
 
-    if (length(slopes)!=0) {
+      # Check that all the regressions are not uninformative and execute the following code
+      # to estimate the 1-Purity value. If they weren't NA would be assigned to the 1-Purity value,
+      # so that CpG would not be used to estimate the final 1-Purity of the sample
 
-      #Creating a vector to store the regressions in which the beta value analysed is included using booleans
-      matches <- ((beta - intercepts) / slopes >= 0) & ((beta - intercepts) / slopes <= 1)
+      if (length(slopes)!=0) {
 
-      # If the length of the matches vector when matches==TRUE is one, a unique CpG methylation pattern (regression)
-      # can be assigned to each beta value. If this value is different to one no significant association to a pattern can
-      # be made
-      if (sum(matches)==1) {
+        #Creating a vector to store the regressions in which the beta value analysed is included using booleans
+        matches <- ((beta - intercepts) / slopes >= 0) & ((beta - intercepts) / slopes <= 1)
 
-        #Store the identified population (indexes of matches vector) into a variable
-        identified_pop <- which(matches)
+        # If the length of the matches vector when matches==TRUE is one, a unique CpG methylation pattern (regression)
+        # can be assigned to each beta value. If this value is different to one no significant association to a pattern can
+        # be made
+        if (sum(matches)==1) {
 
-        #Predicting the 1-purity value from the inverse regression
-        predicted_1_minus_p <- (beta - intercepts[identified_pop]) /slopes[identified_pop]
+          #Store the identified population (indexes of matches vector) into a variable
+          identified_pop <- which(matches)
 
-        # Get the prediction interval of the beta identified
-        beta_int <- c(
-          beta - qt((1-alpha)/2, degrees_of_freedom[identified_pop]) * RSE[identified_pop],
-          beta + qt((1-alpha)/2, degrees_of_freedom[identified_pop]) * RSE[identified_pop]
-        )
+          #Predicting the 1-purity value from the inverse regression
+          predicted_1_minus_p <- (beta - intercepts[identified_pop]) /slopes[identified_pop]
+
+          # Get the prediction interval of the beta identified
+          beta_int <- c(
+            beta - qt((1-alpha)/2, degrees_of_freedom[identified_pop]) * RSE[identified_pop],
+            beta + qt((1-alpha)/2, degrees_of_freedom[identified_pop]) * RSE[identified_pop]
+          )
 
 
-        #In some cases if the degrees of freedom are too low the result of qt(), the quantile of the Student's
-        #t-distribution can be undefined (NaN). Those cases are very uncommon,  but they can generate bugs in the
-        #code. Therefore, if that happened, the one_minus_purity interval would be set to (NA, NA) in order to avoid
-        #possible bugs
+          #In some cases if the degrees of freedom are too low the result of qt(), the quantile of the Student's
+          #t-distribution can be undefined (NaN). Those cases are very uncommon,  but they can generate bugs in the
+          #code. Therefore, if that happened, the one_minus_purity interval would be set to (NA, NA) in order to avoid
+          #possible bugs
 
-        if (anyNA(beta_int)) {
+          if (anyNA(beta_int)) {
 
-          one_minus_purity <- c(NA,NA)
+            one_minus_purity <- c(NA,NA)
+
+          } else {
+
+            #Getting the prediction interval of the 1 - purity value. Extrapolate from beta interval.
+            one_minus_purity <- (beta_int - intercepts[identified_pop]) / slopes[identified_pop]
+            one_minus_purity <- sort(one_minus_purity)
+
+            one_minus_purity[one_minus_purity < 0] <- 0
+            one_minus_purity[one_minus_purity > 1] <- 1
+
+          }
 
         } else {
-
-          #Getting the prediction interval of the 1 - purity value. Extrapolate from beta interval.
-          one_minus_purity <- (beta_int - intercepts[identified_pop]) / slopes[identified_pop]
-          one_minus_purity <- sort(one_minus_purity)
-
-          one_minus_purity[one_minus_purity < 0] <- 0
-          one_minus_purity[one_minus_purity > 1] <- 1
-
+          #If the CpG can not be assigned to a single population (methylation pattern) the 1-purity value will not be assigned.
+          one_minus_purity <- c(NA,NA)
         }
 
+        #If all the regressions are uninformative NA value will be assigned to one_minus_purity.
       } else {
-        #If the CpG can not be assigned to a single population (methylation pattern) the 1-purity value will not be assigned.
         one_minus_purity <- c(NA,NA)
       }
 
-      #If all the regressions are uninformative NA value will be assigned to one_minus_purity.
+      #Setting the interval's endpoints to 0 or 1 if one of the limits lower or higher than those values.
+      #The NAs are ignored
+      if (!(is.na(one_minus_purity[1] & is.na(one_minus_purity[2])))) {
+        one_minus_purity[1] <- max(0, one_minus_purity[1])
+        one_minus_purity[2] <- min(1, one_minus_purity[2])
+      }
+
+      #Returning the 1-purity vector
+      return(one_minus_purity)
+
     } else {
-      one_minus_purity <- c(NA,NA)
+
+      #Identifying the regressions whose slope is too close to 0 to be informative
+      to_be_ignored <- (slopes > -slope_threshold & slopes < slope_threshold) | is.na(slopes)
+
+      # Removing the values that do not meet the conditions previously analysed.
+      slopes <- slopes[!to_be_ignored]
+      intercepts <- intercepts[!to_be_ignored]
+      RSE <- RSE[!to_be_ignored]
+      degrees_of_freedom <- degrees_of_freedom[!to_be_ignored]
+
+      # Filtering original betas
+      pops_to_keep <- which(!to_be_ignored)
+      original_betas <- original_betas[populations %in% pops_to_keep]
+      original_purities <- original_purities[populations %in% pops_to_keep]
+
+      # Filtering populations
+      populations <- match(populations, sort(pops_to_keep))[!is.na(match(populations, sort(pops_to_keep)))]
+
+      # Check that all the regressions are not uninformative and execute the following code
+      # to estimate the 1-Purity value. If they weren't NA would be assigned to the 1-Purity value,
+      # so that CpG would not be used to estimate the final 1-Purity of the sample
+
+      if (length(slopes)!=0) {
+
+        #Creating a vector to store the regressions in which the beta value analysed is included using booleans
+        # The matches are bounded to the 0-1 interval.
+        matches <- ((beta - intercepts) / slopes >= 0) & ((beta - intercepts) / slopes <= 1)
+
+        # If the length of the matches vector when matches==TRUE is one, a unique CpG methylation pattern (regression)
+        # can be assigned to each beta value. If this value is different to one no significant association to a pattern can
+        # be made
+        if (sum(matches)==1) {
+
+          #Store the identified population (indexes of matches vector) into a variable
+          identified_pop <- which(matches)
+
+          #Predicting the 1-purity value from the inverse regression
+          predicted_1_minus_p <- (beta - intercepts[identified_pop]) /slopes[identified_pop]
+
+          ### INTERVAL PREDICTION THROUGH BOOTSTRAPPING
+
+          # Getting betas and purities of the population of interest
+          betas <- unname(original_betas[populations == identified_pop])
+          purities <- 1 - unname(original_purities[populations == identified_pop])
+
+          my_values <- data.frame(purities, betas)
+
+          # Predicting values through bootstrapping
+          to_predict <- data.frame(purities=predicted_1_minus_p)
+
+          # Generate empty vector to store predicted values
+          pred <- rep(NaN, B)
+
+          # Calculate values to estimate prediction interval.
+          # Take into account the error from estimatying a values and random variation of individual values sampled to determine prediction interval
+          for (i in 1:B) {
+            new_data <- my_values[sample(nrow(my_values), nrow(my_values), replace = TRUE),]
+            fit.l <- lm(betas ~ purities, data = my_values)
+            eps <- sample(residuals(fit.l), size = 1)
+            pred[i] <- predict(fit.l, to_predict, type = "response") + eps
+          }
+
+          # Determining interval endpoints based on the chosen alpha
+          bound_1 <- (1 - alpha)/2
+          bound_2 <- 1 - (1 - alpha)/2
+
+          # Calculating botstrapping based prediction interval
+          beta_int <- c(
+            unname(quantile(pred, probs = bound_1)),
+            unname(quantile(pred, probs = bound_2))
+          )
+
+
+          #In some cases if the degrees of freedom are too low the result of qt(), the quantile of the Student's
+          #t-distribution can be undefined (NaN). Those cases are very uncommon,  but they can generate bugs in the
+          #code. Therefore, if that happened, the one_minus_purity interval would be set to (NA, NA) in order to avoid
+          #possible bugs
+
+          if (anyNA(beta_int)) {
+
+            one_minus_purity <- c(NA,NA)
+
+          } else {
+
+            #Getting the prediction interval of the 1 - purity value. Extrapolate from beta interval.
+            one_minus_purity <- (beta_int - intercepts[identified_pop]) / slopes[identified_pop]
+            one_minus_purity <- sort(one_minus_purity)
+
+            one_minus_purity[one_minus_purity < 0] <- 0
+            one_minus_purity[one_minus_purity > 1] <- 1
+
+          }
+
+        } else {
+          #If the CpG can not be assigned to a single population (methylation pattern) the 1-purity value will not be assigned.
+          one_minus_purity <- c(NA,NA)
+        }
+
+        #If all the regressions are uninformative NA value will be assigned to one_minus_purity.
+      } else {
+        one_minus_purity <- c(NA,NA)
+      }
+
+      #Setting the interval's endpoints to 0 or 1 if one of the limits lower or higher than those values.
+      #The NAs are ignored
+      if (!(is.na(one_minus_purity[1] & is.na(one_minus_purity[2])))) {
+        one_minus_purity[1] <- max(0, one_minus_purity[1])
+        one_minus_purity[2] <- min(1, one_minus_purity[2])
+      }
+
+      #Returning the 1-purity vector
+      return(one_minus_purity)
+
     }
 
-    #Setting the interval's endpoints to 0 or 1 if one of the limits lower or higher than those values.
-    #The NAs are ignored
-    if (!(is.na(one_minus_purity[1] & is.na(one_minus_purity[2])))) {
-      one_minus_purity[1] <- max(0, one_minus_purity[1])
-      one_minus_purity[2] <- min(1, one_minus_purity[2])
-    }
-
-    #Returning the 1-purity vector
-    return(one_minus_purity)
-
+  
   }
 
 
@@ -458,7 +582,6 @@ purity_coverage <- function(
 
   #The maximum coverage interval list will be returned
   return(output_list)
-
 
   }
 
