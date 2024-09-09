@@ -56,6 +56,8 @@ execution.</p>
 <span>  variance_threshold <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  proportion_to_interval <span class="op">=</span> <span class="fl">0.96</span>,</span>
 <span>  cores <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  assume_t_distribution <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  Boots_N <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  extended_output <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -72,14 +74,16 @@ at least include the list containing a named vector with the variance of
 the betas of CpGs used to build the regressions (input$cpg.variance), the slopes,
 intercepts residual standard error and degrees of freedom of the regression
 calculated per CpG (input$reg.slopes, input$reg.intercepts, input$reg.RSE
-and input$df as matrices).</p></dd>
+and input$df as matrices). If the prediction intervals for each regression
+are intended to be calculated through bootstrapping instead of assuming t
+distrbution the extended version of the regressions is required.</p></dd>
 
 
 <dt id="arg-beta-values">beta_values<a class="anchor" aria-label="anchor" href="#arg-beta-values"></a></dt>
 <dd><p>A matrix with CpGs as rows and analysed samples (or an
 individual sample) as columns with the uncorrected beta values from the CpGs
 of the samples whose purities are intended to be estimated. The values must
-be numeric, the rows must be named with the CpG ID, and the columns with the
+be numeric, the rows must be names with the CpG ID, and the columns with the
 sample IDs. An example of the required format is available in the
 example_betas_to_correct matrix.</p></dd>
 
@@ -93,7 +97,7 @@ increase the prediction error.</p></dd>
 
 <dt id="arg-slope-threshold">slope_threshold<a class="anchor" aria-label="anchor" href="#arg-slope-threshold"></a></dt>
 <dd><p>Default = 0.2. Minimum slope allowed per regression
-for them to be taken into consideration in the sample purity estimation. The
+for them to be taken into consideration in the sample purity estimation. he
 inclusion of regressions below the threshold can increase the prediction error,
 and therefore will be considered uninformative an ignored.</p></dd>
 
@@ -116,15 +120,29 @@ A lower value will generate wider intervals, and a higher one narrower ranges.</
 parallel.</p></dd>
 
 
+<dt id="arg-assume-t-distribution">assume_t_distribution<a class="anchor" aria-label="anchor" href="#arg-assume-t-distribution"></a></dt>
+<dd><p>Default = TRUE. Set this argument to FALSE if the user
+does not want to use the t statistic to calculate prediction intervals from each of the
+refernce regression. In this case the interval will be determined through bootstrapping,
+a non-parametric strategy that may signifcantly increase the execution time.</p></dd>
+
+
 <dt id="arg-extended-output">extended_output<a class="anchor" aria-label="anchor" href="#arg-extended-output"></a></dt>
 <dd><p>Default = FALSE. Set this argument to TRUE if the user
 wants to obtain the CpGs used (informative for the estimation) for the purity
 estimation of each analysed sample in the output list.</p></dd>
 
+
+<dt id="arg-boost-n">Boost_N<a class="anchor" aria-label="anchor" href="#arg-boost-n"></a></dt>
+<dd><p>The number of times the that the values will be bootstrapped to generate
+the prediction interval should be entered here if assume_t_distribution = FALSE. While an
+excessively low number will generate an unreliable output, choosing an excesively high value
+will significantly decrease the function's execution speed.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>List containing a data frame with the predicted 1 - Purity values
+    <p>extended_output List containing a data frame with the predicted 1 - Purity values
 (output$`Estimated_1mPurities`). It contains the identified estimates (in very
 exceptional cases it could be different to 1) the estimated 1-Purity values
 and intervals predicted per each sample. If more than one estimates are
@@ -150,6 +168,14 @@ the extended_output = TRUE option is selected.</p>
 <span>                  proportion_to_interval <span class="op">=</span> <span class="fl">0.93</span>,</span>
 <span>                  cores <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>                  extended_output <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Using bootstrapping</span></span>
+<span><span class="fu">purity_estimation</span><span class="op">(</span>reference_regressions <span class="op">=</span> <span class="va">output_from_reference_regression_generator</span>,</span>
+<span>                  beta_values <span class="op">=</span> <span class="va">example_betas_to_correct</span>,</span>
+<span>                  cores <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>                  extended_output <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                  assume_t_distribution <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                  Boots_N <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
 <span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
