@@ -51,12 +51,12 @@
 #' estimation of each analysed sample in the output list.
 #'
 #' @param assume_t_distribution Default = TRUE. Set this argument to FALSE if the user
-#' does not want to use the t statistic to calculate prediction intervals from each of the 
+#' does not want to use the t statistic to calculate prediction intervals from each of the
 #' refernce regression. In this case the interval will be determined through bootstrapping,
 #' a non-parametric strategy that may signifcantly increase the execution time.
 #'
 #' @param Boost_N The number of times the that the values will be bootstrapped to generate
-#' the prediction interval should be entered here if assume_t_distribution = FALSE. While an 
+#' the prediction interval should be entered here if assume_t_distribution = FALSE. While an
 #' excessively low number will generate an unreliable output, choosing an excesively high value
 #' will significantly decrease the function's execution speed.
 #'
@@ -131,6 +131,60 @@ purity_estimation <- function(
   reference_regressions$reg.RSE <- reference_regressions$reg.RSE[cpgs_to_keep,]
   my_df <- beta_values[rownames(beta_values) %in% cpgs_to_keep,]
 
+  #
+  # QC OF THE REGRESSIONS
+  #
+
+  # QC of reference regerssions to avoid errors due to flexmix. Check if there are NAs in wrong 
+  # positions or degrees of freedom that are equal to 0
+  check_na_last <- function(vec) {
+  
+    # Check if all the elements are not NA or NaN
+    if(sum(is.na(vec)) == length(vec)) {
+      return(FALSE) # Valid if all NAs are at the end
+    }
+    
+    # Find the last non-NA element index
+    last_non_na_index <- max(which(!is.na(vec)), na.rm = TRUE)
+    
+    # Check if there are any NAs before the last non-NA element
+    if (any(is.na(vec[1:last_non_na_index]))) {
+      return(FALSE) # Invalid if any NAs are found before the last non-NA
+    }
+    
+    return(TRUE) # Valid if all NAs are at the end
+  }
+
+  # Check if th
+  check_df <- function(vec) {
+
+    # Check if ant of the elements is equal to 0
+    if (0 %in% vec) {
+
+      return(FALSE)
+
+    } else {
+
+      return(TRUE)
+
+    }
+
+  }
+
+  # QC remove regressions with potential errors
+  qc_slope_NA <- apply(reference_regressions$reg.slopes, check_na_last())
+  qc_intercept_NA <- apply(reference_regressions$reg.intercets, check_na_last())
+  qc_df_NA <- apply(my_df, check_na_last())
+  qc_df_0 <- apply(my_df, check_df())
+
+  # Remove problematic CpGs from the regression list
+  cpgs_to_keep <- names(reference_regressions$cpg.slope)[qc_slope_NA & qc_intercept_NA & qc_df_NA & qc_df_0]
+
+  #Filtering regression objects
+  reference_regressions$reg.slopes <- reference_regressions$reg.slopes[cpgs_to_keep,]
+  reference_regressions$reg.intercepts <- reference_regressions$reg.intercepts[cpgs_to_keep,]
+  reference_regressions$reg.RSE <- reference_regressions$reg.RSE[cpgs_to_keep,]
+  my_df <- beta_values[rownames(beta_values) %in% cpgs_to_keep,]
 
   #
   # CONFIGURING PARALLELIZATION
@@ -159,6 +213,8 @@ purity_estimation <- function(
   cat("\nRunning the analysis...\n\n")
 
 if (assume_t_distribution) {
+
+  print("T_dist")
 
   # Getting the names of the samples to analyse
   samples <- colnames(beta_values)
@@ -195,7 +251,8 @@ if (assume_t_distribution) {
                                                 RSE=reference_regressions$reg.RSE[cpg, ],
                                                 degrees_of_freedom=reference_regressions$reg.df[cpg, ],
                                                 slope_threshold=slope_threshold,
-                                                alpha=alpha)
+                                                alpha=alpha,
+                                                assume_t_distribution = assume_t_distribution)
 
       }
     }
@@ -258,7 +315,8 @@ if (assume_t_distribution) {
                                                  original_betas = reference_regressions$betas.original[cpg, ],
                                                  original_purities = reference_regressions$purities,
                                                  B = Boots_N,
-                                                 alpha = alpha
+                                                 alpha = alpha,
+                                                 assume_t_distribution = assume_t_distribution
         )
 
       }

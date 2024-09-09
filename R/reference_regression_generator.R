@@ -29,24 +29,16 @@
 #' @param cores  Default = 1. Number of cores to be used to run the function in
 #' parallel.
 #'
-#' @param regression_details Default = FALSE. The user can set this argument to
-#' TRUE to obtain an extended version of the output reference list containing
-#' the original beta values, the corrected tumour and microenvironment betas
-#' after applying the Staaf & Aine beta correction for whole cohorts in the
-#' reference data, and the methylation pattern or population assigned to each
-#' sample used to buld the reference regressions per CpG.
-#'
 #' @returns A list with the parameters of the computed reference regressions. The
 #' list contains the variance of the betas of CpGs used to build the regressions
 #' (output$cpg.variance), the slopes, intercepts residual standard error and
 #' degrees of freedom of the regression calculated per CpG (output$reg.slopes,
-#' output$reg.intercepts, output$reg.RSE and output$df). If the extended output
-#' list is required it will also include the original uncorrected beta values
-#' (output$betas.original), the corrected tumour beta values (output$betas.tumour),
-#' the corrected microenvironment beta values (output$betas.microenvironment), the
-#' original purity values (output$purities) the methylation pattern or population 
-#' assigned to each sample used to buldthe reference regressions per CpG 
-#' (output$cpg.populations).
+#' output$reg.intercepts, output$reg.RSE and output$df). Additionally, the list 
+#' also includes the original uncorrected beta values (output$betas.original), 
+#' the corrected tumour beta values (output$betas.tumour), the corrected microenvironment 
+#' beta values (output$betas.microenvironment), the original purity values (output$purities) 
+#' the methylation pattern or population assigned to each sample used to buld the reference 
+#' regressions per CpG (output$cpg.populations).
 #'
 #' @export
 #'
@@ -163,11 +155,8 @@ reference_regression_generator <- function(
   cat("\nGenerating output...\n\n")
 
 
-  # Generating output list. Short and extended versions
-  if (regression_details == TRUE) {
-
-    # Creating a list to add the results.
-    result_list <- list(
+  # Creating a list to add the results.
+  result_list <- list(
       betas.original = do.call("rbind",lapply(res,function(x) x$y.orig)), #Original beta values
       betas.tumor = do.call("rbind",lapply(res,function(x) x$y.tum)), #Corrected tumor beta values
       betas.microenvironment = do.call("rbind",lapply(res,function(x) x$y.norm)), #Corrected microenvironment beta values
@@ -179,19 +168,6 @@ reference_regression_generator <- function(
       reg.df = do.call("rbind",lapply(res,function(x) x$res.df)), #Degrees of freedom of the reversed regressions
       purities = tumour_purities #Reference umour purities
     )
-
-  } else {
-
-    # Creating a list to add the results.
-    result_list <- list(
-      cpg.variance = cpg_variance, # Variance value of the beta values of each CpG
-      reg.slopes = do.call("rbind",lapply(res,function(x) x$res.slopes)), #Slopes of the populations
-      reg.intercepts = do.call("rbind",lapply(res,function(x) x$res.int)), #Intercepts of the populations
-      reg.RSE = do.call("rbind",lapply(res,function(x) x$res.rse)), #Residual standard error
-      reg.df = do.call("rbind",lapply(res,function(x) x$res.df)) #Degrees of freedom of the reversed regressions
-    )
-
-  }
 
 
   cat("\n\n=================\n")

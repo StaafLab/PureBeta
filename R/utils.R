@@ -41,6 +41,7 @@ adjustBeta <- function(
     model <- stepFlexmix(y2 ~ x,k = 1:nmax, nrep = nrep,verbose = FALSE)
     model <- getModel(model, "BIC")
     cl <- clusters(model)
+    
     #Make sure clusters are numbered 1 to 3, odd cases exist where one pop has zero members from flexMix
     #can rename because flexmix object not used after this
     cl <- as.integer(factor(cl))
@@ -202,11 +203,11 @@ predicting_purity <- function(
     degrees_of_freedom,
     slope_threshold,
     alpha,
-    assume_t_distribution = TRUE,
     populations = NULL,
     original_betas = NULL,
     original_purities = NULL,
-    B = NULL
+    B = NULL,
+    assume_t_distribution
 
   ) {
 
@@ -221,6 +222,9 @@ predicting_purity <- function(
       intercepts <- intercepts[!to_be_ignored]
       RSE <- RSE[!to_be_ignored]
       degrees_of_freedom <- degrees_of_freedom[!to_be_ignored]
+
+      # Deleting unnecessary variables to improve memory usage
+      rm(to_be_ignored, pops_to_keep)
 
       # Check that all the regressions are not uninformative and execute the following code
       # to estimate the 1-Purity value. If they weren't NA would be assigned to the 1-Purity value,
@@ -308,6 +312,9 @@ predicting_purity <- function(
       # Filtering populations
       populations <- match(populations, sort(pops_to_keep))[!is.na(match(populations, sort(pops_to_keep)))]
 
+      # Deleting unnecessary variables to improve memory usage
+      rm(to_be_ignored, pops_to_keep)
+
       # Check that all the regressions are not uninformative and execute the following code
       # to estimate the 1-Purity value. If they weren't NA would be assigned to the 1-Purity value,
       # so that CpG would not be used to estimate the final 1-Purity of the sample
@@ -326,19 +333,17 @@ predicting_purity <- function(
           #Store the identified population (indexes of matches vector) into a variable
           identified_pop <- which(matches)
 
-          #Predicting the 1-purity value from the inverse regression
-          predicted_1_minus_p <- (beta - intercepts[identified_pop]) /slopes[identified_pop]
+          # Remove unnecesary variables
+          rm(matches)
 
           ### INTERVAL PREDICTION THROUGH BOOTSTRAPPING
 
-          # Getting betas and purities of the population of interest
-          betas <- unname(original_betas[populations == identified_pop])
-          purities <- 1 - unname(original_purities[populations == identified_pop])
+          # Getting values to perform booustrapping
+          my_values <- data.frame("purities"= 1 - unname(original_purities[populations == identified_pop]), 
+                                  "betas" = unname(original_betas[populations == identified_pop]))
 
-          my_values <- data.frame(purities, betas)
-
-          # Predicting values through bootstrapping
-          to_predict <- data.frame(purities=predicted_1_minus_p)
+          # Generate purity value to predict interval
+          to_predict <- data.frame("purities"=(beta - intercepts[identified_pop]) /slopes[identified_pop])
 
           # Generate empty vector to store predicted values
           pred <- rep(NaN, B)
@@ -352,6 +357,8 @@ predicting_purity <- function(
             pred[i] <- predict(fit.l, to_predict, type = "response") + eps
           }
 
+          rm(my_values, to_predict)
+          
           # Determining interval endpoints based on the chosen alpha
           bound_1 <- (1 - alpha)/2
           bound_2 <- 1 - (1 - alpha)/2
@@ -405,7 +412,7 @@ predicting_purity <- function(
 
     }
 
-  
+
   }
 
 
