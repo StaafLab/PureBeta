@@ -9,8 +9,7 @@ reference_regression_generator(
   tumour_purities,
   set_seed = FALSE,
   seed_num = 2000,
-  cores = 1,
-  regression_details = FALSE
+  cores = 1
 )
 }
 \arguments{
@@ -67,7 +66,6 @@ reference_regression_generator(beta_values = example_betas_reference,
                                tumour_purities = example_purities_reference,
                                set_seed = TRUE,
                                seed_num = 1,
-                               cores = 5,
-                               regression_details = TRUE)
+                               cores = 5)
 
 }
