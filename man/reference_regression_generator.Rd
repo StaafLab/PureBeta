@@ -37,25 +37,18 @@ be specified here.}
 
 \item{cores}{Default = 1. Number of cores to be used to run the function in
 parallel.}
-
-\item{regression_details}{Default = FALSE. The user can set this argument to
-TRUE to obtain an extended version of the output reference list containing
-the original beta values, the corrected tumour and microenvironment betas
-after applying the Staaf & Aine beta correction for whole cohorts in the
-reference data, and the methylation pattern or population assigned to each
-sample used to buld the reference regressions per CpG.}
 }
 \value{
 A list with the parameters of the computed reference regressions. The
 list contains the variance of the betas of CpGs used to build the regressions
 (output$cpg.variance), the slopes, intercepts residual standard error and
 degrees of freedom of the regression calculated per CpG (output$reg.slopes,
-output$reg.intercepts, output$reg.RSE and output$df). If the extended output
-list is required it will also include the original uncorrected beta values
-(output$betas.original), the corrected tumour beta values (output$betas.tumour),
-the corrected microenvironment beta values (output$betas.microenvironment) and
-the methylation pattern or population assigned to each sample used to buld
-the reference regressions per CpG (output$cpg.populations).
+output$reg.intercepts, output$reg.RSE and output$df). Additionally, the list 
+also includes the original uncorrected beta values (output$betas.original), 
+the corrected tumour beta values (output$betas.tumour), the corrected microenvironment 
+beta values (output$betas.microenvironment), the original purity values (output$purities) 
+the methylation pattern or population assigned to each sample used to buld the reference 
+regressions per CpG (output$cpg.populations).
 }
 \description{
 This function generates the reference regressions' parameters and variance of

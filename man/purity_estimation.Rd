@@ -12,6 +12,8 @@ purity_estimation(
   variance_threshold = 0.05,
   proportion_to_interval = 0.96,
   cores = 1,
+  assume_t_distribution = TRUE,
+  Boots_N = NULL,
   extended_output = FALSE
 )
 }
@@ -23,7 +25,9 @@ at least include the list containing a named vector with the variance of
 the betas of CpGs used to build the regressions (input$cpg.variance), the slopes,
 intercepts residual standard error and degrees of freedom of the regression
 calculated per CpG (input$reg.slopes, input$reg.intercepts, input$reg.RSE
-and input$df as matrices).}
+and input$df as matrices). If the prediction intervals for each regression
+are intended to be calculated through bootstrapping instead of assuming t
+distrbution the extended version of the regressions is required.}
 
 \item{beta_values}{A matrix with CpGs as rows and analysed samples (or an
 individual sample) as columns with the uncorrected beta values from the CpGs
@@ -54,12 +58,22 @@ A lower value will generate wider intervals, and a higher one narrower ranges.}
 \item{cores}{Default = 1. Number of cores to be used to run the function in
 parallel.}
 
+\item{assume_t_distribution}{Default = TRUE. Set this argument to FALSE if the user
+does not want to use the t statistic to calculate prediction intervals from each of the
+refernce regression. In this case the interval will be determined through bootstrapping,
+a non-parametric strategy that may signifcantly increase the execution time.}
+
 \item{extended_output}{Default = FALSE. Set this argument to TRUE if the user
 wants to obtain the CpGs used (informative for the estimation) for the purity
 estimation of each analysed sample in the output list.}
+
+\item{Boost_N}{The number of times the that the values will be bootstrapped to generate
+the prediction interval should be entered here if assume_t_distribution = FALSE. While an
+excessively low number will generate an unreliable output, choosing an excesively high value
+will significantly decrease the function's execution speed.}
 }
 \value{
-List containing a data frame with the predicted 1 - Purity values
+extended_output List containing a data frame with the predicted 1 - Purity values
 (output$`Estimated_1mPurities`). It contains the identified estimates (in very
 exceptional cases it could be different to 1) the estimated 1-Purity values
 and intervals predicted per each sample. If more than one estimates are
@@ -90,5 +104,13 @@ purity_estimation(reference_regressions = output_from_reference_regression_gener
                   proportion_to_interval = 0.93,
                   cores = 5,
                   extended_output = TRUE)
+
+# Using bootstrapping
+purity_estimation(reference_regressions = output_from_reference_regression_generator,
+                  beta_values = example_betas_to_correct,
+                  cores = 5,
+                  extended_output = TRUE,
+                  assume_t_distribution = FALSE,
+                  Boots_N = 1000)
 
 }
