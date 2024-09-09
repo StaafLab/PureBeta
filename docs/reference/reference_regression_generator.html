@@ -50,8 +50,7 @@ This function allows multi-core execution.</p>
 <span>  <span class="va">tumour_purities</span>,</span>
 <span>  set_seed <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed_num <span class="op">=</span> <span class="fl">2000</span>,</span>
-<span>  cores <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  regression_details <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  cores <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -92,15 +91,6 @@ be specified here.</p></dd>
 <dd><p>Default = 1. Number of cores to be used to run the function in
 parallel.</p></dd>
 
-
-<dt id="arg-regression-details">regression_details<a class="anchor" aria-label="anchor" href="#arg-regression-details"></a></dt>
-<dd><p>Default = FALSE. The user can set this argument to
-TRUE to obtain an extended version of the output reference list containing
-the original beta values, the corrected tumour and microenvironment betas
-after applying the Staaf &amp; Aine beta correction for whole cohorts in the
-reference data, and the methylation pattern or population assigned to each
-sample used to buld the reference regressions per CpG.</p></dd>
-
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -108,12 +98,12 @@ sample used to buld the reference regressions per CpG.</p></dd>
 list contains the variance of the betas of CpGs used to build the regressions
 (output$cpg.variance), the slopes, intercepts residual standard error and
 degrees of freedom of the regression calculated per CpG (output$reg.slopes,
-output$reg.intercepts, output$reg.RSE and output$df). If the extended output
-list is required it will also include the original uncorrected beta values
-(output$betas.original), the corrected tumour beta values (output$betas.tumour),
-the corrected microenvironment beta values (output$betas.microenvironment) and
-the methylation pattern or population assigned to each sample used to buld
-the reference regressions per CpG (output$cpg.populations).</p>
+output$reg.intercepts, output$reg.RSE and output$df). Additionally, the list
+also includes the original uncorrected beta values (output$betas.original),
+the corrected tumour beta values (output$betas.tumour), the corrected microenvironment
+beta values (output$betas.microenvironment), the original purity values (output$purities)
+the methylation pattern or population assigned to each sample used to buld the reference
+regressions per CpG (output$cpg.populations).</p>
     </div>
 
     <div class="section level2">
@@ -128,8 +118,7 @@ the reference regressions per CpG (output$cpg.populations).</p>
 <span>                               tumour_purities <span class="op">=</span> <span class="va">example_purities_reference</span>,</span>
 <span>                               set_seed <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                               seed_num <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                               cores <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>                               regression_details <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>                               cores <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

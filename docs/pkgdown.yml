@@ -2,7 +2,7 @@ pandoc: 3.1.11
 pkgdown: 2.1.0
 pkgdown_sha: ~
 articles: {}
-last_built: 2024-07-15T09:18Z
+last_built: 2024-09-09T14:45Z
 urls:
   reference: https://staaflab.github.io/PureBeta/reference
   article: https://staaflab.github.io/PureBeta/articles
