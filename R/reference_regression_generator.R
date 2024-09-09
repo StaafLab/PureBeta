@@ -53,8 +53,7 @@
 #'                                tumour_purities = example_purities_reference,
 #'                                set_seed = TRUE,
 #'                                seed_num = 1,
-#'                                cores = 5,
-#'                                regression_details = TRUE)
+#'                                cores = 5)
 #'
 reference_regression_generator <- function(
 
@@ -62,8 +61,7 @@ reference_regression_generator <- function(
   tumour_purities, # Purity values of the samples to be analysed
   set_seed = FALSE, # Boolean to specify if a seed should be set
   seed_num = 2000, # Seed to be used if set_seed == TRUE
-  cores = 1, # Cores to be used to run the function
-  regression_details = FALSE # Include the corrected betas based on the Staaf & Aine method and the populations identified for each sample in each CpG in the output
+  cores = 1 # Cores to be used to run the function
 
 ) {
 
