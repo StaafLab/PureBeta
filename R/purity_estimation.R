@@ -160,22 +160,18 @@ purity_estimation <- function(
 
     # Check if ant of the elements is equal to 0
     if (0 %in% vec) {
-
       return(FALSE)
-
     } else {
-
       return(TRUE)
-
     }
 
   }
 
   # QC remove regressions with potential errors
-  qc_slope_NA <- apply(reference_regressions$reg.slopes, check_na_last())
-  qc_intercept_NA <- apply(reference_regressions$reg.intercets, check_na_last())
-  qc_df_NA <- apply(my_df, check_na_last())
-  qc_df_0 <- apply(my_df, check_df())
+  qc_slope_NA <- apply(reference_regressions$reg.slopes, check_na_last, MARGIN=1)
+  qc_intercept_NA <- apply(reference_regressions$reg.intercets, check_na_last, MARGIN=1)
+  qc_df_NA <- apply(my_df, check_na_last, MARGIN=1)
+  qc_df_0 <- apply(my_df, check_df, MARGIN=1)
 
   # Remove problematic CpGs from the regression list
   cpgs_to_keep <- names(reference_regressions$cpg.slope)[qc_slope_NA & qc_intercept_NA & qc_df_NA & qc_df_0]
