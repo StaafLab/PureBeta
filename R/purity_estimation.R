@@ -169,7 +169,7 @@ purity_estimation <- function(
 
   # QC remove regressions with potential errors
   qc_slope_NA <- apply(reference_regressions$reg.slopes, check_na_last, MARGIN=1)
-  qc_intercept_NA <- apply(reference_regressions$reg.intercets, check_na_last, MARGIN=1)
+  qc_intercept_NA <- apply(reference_regressions$reg.intercepts, check_na_last, MARGIN=1)
   qc_df_NA <- apply(my_df, check_na_last, MARGIN=1)
   qc_df_0 <- apply(my_df, check_df, MARGIN=1)
 
