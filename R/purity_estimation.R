@@ -175,6 +175,8 @@ purity_estimation <- function(
 
   # Remove problematic CpGs from the regression list
   cpgs_to_keep <- names(reference_regressions$cpg.slope)[qc_slope_NA & qc_intercept_NA & qc_df_NA & qc_df_0]
+  print(cpgs_to_keep)
+
 
   #Filtering regression objects
   reference_regressions$reg.slopes <- reference_regressions$reg.slopes[cpgs_to_keep,]
