@@ -174,7 +174,7 @@ purity_estimation <- function(
   qc_df_0 <- apply(my_df, check_df, MARGIN=1)
 
   # Remove problematic CpGs from the regression list
-  cpgs_to_keep <- rownames(reference_regressions$cpg.slope)[qc_slope_NA & qc_intercept_NA & qc_df_NA & qc_df_0]
+  cpgs_to_keep <- rownames(reference_regressions$reg.slopes)[qc_slope_NA & qc_intercept_NA & qc_df_NA & qc_df_0]
   print(cpgs_to_keep)
 
 
