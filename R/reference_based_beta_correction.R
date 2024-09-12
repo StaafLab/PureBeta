@@ -385,6 +385,55 @@ reference_based_beta_correction <- function(
   my_RSE <- reference_regressions$reg.RSE
   my_df <- reference_regressions$reg.df
 
+  # Filtering reference regressions to account for possible errors caused by FlexMix
+
+  # QC of reference regerssions to avoid errors due to flexmix. Check if there are NAs in wrong 
+  # positions or degrees of freedom that are equal to 0
+  check_na_last <- function(vec) {
+  
+    # Check if all the elements are not NA or NaN
+    if(sum(is.na(vec)) == length(vec)) {
+      return(FALSE) # Valid if all NAs are at the end
+    }
+    
+    # Find the last non-NA element index
+    last_non_na_index <- max(which(!is.na(vec)), na.rm = TRUE)
+    
+    # Check if there are any NAs before the last non-NA element
+    if (any(is.na(vec[1:last_non_na_index]))) {
+      return(FALSE) # Invalid if any NAs are found before the last non-NA
+    }
+    
+    return(TRUE) # Valid if all NAs are at the end
+  }
+
+  # Check if the degrees of freedom are 0
+  check_df <- function(vec) {
+
+    # Check if ant of the elements is equal to 0
+    if (0 %in% vec) {
+      return(FALSE)
+    } else {
+      return(TRUE)
+    }
+
+  }
+
+  # QC remove regressions with potential errors
+  qc_slope_NA <- apply(my_slopes, check_na_last, MARGIN=1)
+  qc_intercept_NA <- apply(my_intercepts, check_na_last, MARGIN=1)
+  qc_df_NA <- apply(my_df, check_na_last, MARGIN=1)
+  qc_df_0 <- apply(my_df, check_df, MARGIN=1)
+
+  # Remove problematic CpGs from the regression list
+  cpgs_to_keep <- rownames(reference_regressions$reg.slopes)[qc_slope_NA & qc_intercept_NA & qc_df_NA & qc_df_0]
+
+
+  #Filtering regression objects
+  my_slopes <- my_slopes[cpgs_to_keep,]
+  my_intercepts <- my_intercepts[cpgs_to_keep,]
+  my_RSE <- my_RSE[cpgs_to_keep,]
+  my_df <- beta_values[rownames(beta_values) %in% cpgs_to_keep,]
 
   # FILTERING CPGS
 

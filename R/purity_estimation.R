@@ -125,11 +125,8 @@ purity_estimation <- function(
   #Generate a vector with the CpGs to filter
   cpgs_to_keep <- names(reference_regressions$cpg.variance[reference_regressions$cpg.variance >= variance_threshold])
 
-  #Filtering regression objects
+  #Filtering regression objects. No need to filter the other parameters as we will interate through them using the cpG ids from the slopes matrix
   reference_regressions$reg.slopes <- reference_regressions$reg.slopes[cpgs_to_keep,]
-  reference_regressions$reg.intercepts <- reference_regressions$reg.intercepts[cpgs_to_keep,]
-  reference_regressions$reg.RSE <- reference_regressions$reg.RSE[cpgs_to_keep,]
-  my_df <- beta_values[rownames(beta_values) %in% cpgs_to_keep,]
 
   #
   # QC OF THE REGRESSIONS
@@ -170,19 +167,17 @@ purity_estimation <- function(
   # QC remove regressions with potential errors
   qc_slope_NA <- apply(reference_regressions$reg.slopes, check_na_last, MARGIN=1)
   qc_intercept_NA <- apply(reference_regressions$reg.intercepts, check_na_last, MARGIN=1)
-  qc_df_NA <- apply(my_df, check_na_last, MARGIN=1)
-  qc_df_0 <- apply(my_df, check_df, MARGIN=1)
+  qc_df_NA <- apply(reference_regressions$reg.df, check_na_last, MARGIN=1)
+  qc_df_0 <- apply(reference_regressions$reg.df, check_df, MARGIN=1)
 
   # Remove problematic CpGs from the regression list
   cpgs_to_keep <- rownames(reference_regressions$reg.slopes)[qc_slope_NA & qc_intercept_NA & qc_df_NA & qc_df_0]
-  print(cpgs_to_keep)
 
 
   #Filtering regression objects
   reference_regressions$reg.slopes <- reference_regressions$reg.slopes[cpgs_to_keep,]
-  reference_regressions$reg.intercepts <- reference_regressions$reg.intercepts[cpgs_to_keep,]
-  reference_regressions$reg.RSE <- reference_regressions$reg.RSE[cpgs_to_keep,]
-  my_df <- beta_values[rownames(beta_values) %in% cpgs_to_keep,]
+  # There is no need to filter CpG beta values or other parameters as we iterate through the Cpg ids 
+  # present in the reg.slopes matrix.
 
   #
   # CONFIGURING PARALLELIZATION
@@ -211,8 +206,6 @@ purity_estimation <- function(
   cat("\nRunning the analysis...\n\n")
 
 if (assume_t_distribution) {
-
-  print("T_dist")
 
   # Getting the names of the samples to analyse
   samples <- colnames(beta_values)
