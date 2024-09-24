@@ -429,11 +429,11 @@ reference_based_beta_correction <- function(
   cpgs_to_keep <- rownames(reference_regressions$reg.slopes)[qc_slope_NA & qc_intercept_NA & qc_df_NA & qc_df_0]
 
 
-  #Filtering regression objects
+  #Filtering regression objects and Beta values to correct
   my_slopes <- my_slopes[cpgs_to_keep,]
   my_intercepts <- my_intercepts[cpgs_to_keep,]
   my_RSE <- my_RSE[cpgs_to_keep,]
-  my_df <- beta_values[rownames(beta_values) %in% cpgs_to_keep,]
+  my_df <- betas_to_correct[rownames(betas_to_correct) %in% cpgs_to_keep,]
 
   # FILTERING CPGS
 
