@@ -228,7 +228,7 @@ reference_based_beta_correction <- function(
     }
 
     # Remove CpGs from the cohort dataset that are not included into the data to correct to speed up the process.
-    reference_betas <- reference_betas[rownames(reference_betas) %in% rownames(betas_to_correct),]
+    reference_betas <- reference_betas[names(reference_betas) %in% names(betas_to_correct)]
 
     #Sorting the cohort betas dataframe based on the rownames of betas_to_correct
     reference_betas <- reference_betas[rownames(betas_to_correct),]
