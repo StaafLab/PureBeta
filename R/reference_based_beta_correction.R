@@ -216,7 +216,6 @@ reference_based_beta_correction <- function(
 
     }
 
-    print(betas_to_correct)
 
     # Checking if the CpGs are included in the reference data
     if (sum(!(rownames(betas_to_correct) %in% rownames(reference_betas))) != 0) {
@@ -228,12 +227,9 @@ reference_based_beta_correction <- function(
       betas_to_correct <- betas_to_correct[rownames(betas_to_correct) %in% rownames(reference_betas),]
     }
 
-    print(betas_to_correct)
 
     # Remove CpGs from the cohort dataset that are not included into the data to correct to speed up the process.
     reference_betas <- reference_betas[rownames(reference_betas) %in% rownames(betas_to_correct),]
-
-    print(reference_betas)
 
     #Sorting the cohort betas dataframe based on the rownames of betas_to_correct
     reference_betas <- reference_betas[rownames(betas_to_correct),]
