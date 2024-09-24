@@ -674,7 +674,7 @@ correcting_betas <- function(
       tum_betas <- intercepts_vec + distances_vec
 
       #The maximum possible value will always be kept below or equal to 1 and minimum to 0
-      tum_betas <- sapply(tum_betas, function(x) if(x > 1) {1} else {x})  # FIND BETTER WAY!!!
+      tum_betas <- sapply(tum_betas, function(x) if(x > 1) {1} else {x})
       tum_betas <- sapply(tum_betas, function(x) if(x < 0) {0} else {x})
 
       return(tum_betas)
@@ -687,7 +687,7 @@ correcting_betas <- function(
 
       #The maximum possible value will allways be kept below or equal to 1 and minimum to 0
       env_betas <- sapply(env_betas, function(x) if(x > 1) {1} else {x})
-      env_betas <- sapply(env_betas, function(x) if(x > 1) {1} else {x})
+      env_betas <- sapply(env_betas, function(x) if(x < 0) {0} else {x})
 
 
       return(env_betas)
