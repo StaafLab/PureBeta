@@ -231,7 +231,7 @@ reference_based_beta_correction <- function(
     reference_betas <- reference_betas[names(reference_betas) %in% names(betas_to_correct)]
 
     #Sorting the cohort betas dataframe based on the rownames of betas_to_correct
-    reference_betas <- reference_betas[rownames(betas_to_correct),]
+    reference_betas <- reference_betas[rownames(betas_to_correct)]
 
 
     # MERGING REFERENCE AND PREDICTED VALUES TO REFIT THE REFERENCE REGRESSIONS
