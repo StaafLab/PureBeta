@@ -433,8 +433,7 @@ reference_based_beta_correction <- function(
   my_slopes <- my_slopes[cpgs_to_keep,]
   my_intercepts <- my_intercepts[cpgs_to_keep,]
   my_RSE <- my_RSE[cpgs_to_keep,]
-  my_df <- betas_to_correct[rownames(betas_to_correct) %in% cpgs_to_keep,]
-
+ 
   # FILTERING CPGS
 
   cat("\nChecking CpGs...\n\n")
