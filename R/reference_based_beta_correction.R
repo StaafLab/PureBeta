@@ -224,7 +224,7 @@ reference_based_beta_correction <- function(
       cat("\n",  sum(!(rownames(betas_to_correct) %in% rownames(reference_betas))), "CpG(s) is/are not included into the reference cohort, so it/they can not be corrected.\n\n")
 
       # Filtering not included CpGs
-      betas_to_correct <- t[rownames(betas_to_correct) %in% rownames(reference_betas),]
+      betas_to_correct <- betas_to_correct[rownames(betas_to_correct) %in% rownames(reference_betas),]
     }
 
     # Remove CpGs from the cohort dataset that are not included into the data to correct to speed up the process.
