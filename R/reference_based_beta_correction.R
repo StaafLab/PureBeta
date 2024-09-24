@@ -265,6 +265,9 @@ reference_based_beta_correction <- function(
     #Storing sample names
     betaNames <- colnames(betas)
 
+    print(betaRun)
+    print(purities)
+
     # Initializing progress bar and specifying options
     pbo <- pboptions(type = "txt", char="=", txt.width=80)
 
