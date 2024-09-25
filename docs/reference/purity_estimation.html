@@ -122,9 +122,15 @@ parallel.</p></dd>
 
 <dt id="arg-assume-t-distribution">assume_t_distribution<a class="anchor" aria-label="anchor" href="#arg-assume-t-distribution"></a></dt>
 <dd><p>Default = TRUE. Set this argument to FALSE if the user
-does not want to use the t statistic to calculate prediction intervals from each of the
+does not want to use the default t statistic to calculate prediction intervals from each of the
 refernce regression. In this case the interval will be determined through bootstrapping,
-a non-parametric strategy that may signifcantly increase the execution time.</p></dd>
+a non-parametric strategy that may signifcantly increase the execution time (The purity estimation
+of the example dataset provided in the package using reference regressions built from the example reference
+data also provided in the package is 215 times slower). The bootstrapping and t distribution based approaches
+have shown extremely similar results in the analysed data using the default parameters (TCGA-BRCA, TCGA-LUAD, 
+TCGA-LUSC and other external validation datasets). </p></dd>
+
+<img src="figures/t_boot.png" alt="Comparison of the purity esttimates through bootstrapping and t-dist based approaches."> 
 
 
 <dt id="arg-extended-output">extended_output<a class="anchor" aria-label="anchor" href="#arg-extended-output"></a></dt>
