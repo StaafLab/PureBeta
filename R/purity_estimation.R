@@ -55,7 +55,7 @@
 #' refernce regression. In this case the interval will be determined through bootstrapping,
 #' a non-parametric strategy that may signifcantly increase the execution time.
 #'
-#' @param Boost_N The number of times the that the values will be bootstrapped to generate
+#' @param Boost_N Default = 500. The number of times the that the values will be bootstrapped to generate
 #' the prediction interval should be entered here if assume_t_distribution = FALSE. While an
 #' excessively low number will generate an unreliable output, choosing an excesively high value
 #' will significantly decrease the function's execution speed.
@@ -105,7 +105,7 @@ purity_estimation <- function(
   proportion_to_interval = 0.96,
   cores = 1,
   assume_t_distribution = TRUE,
-  Boots_N = NULL,
+  Boots_N = 500,
   extended_output = FALSE
 ) {
 
