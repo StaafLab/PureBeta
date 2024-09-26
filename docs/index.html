@@ -54,26 +54,28 @@
   <main id="main" class="col-md-9"><p><font size="12"><strong>PureBeta</strong> </font> <a href="https://staaflab.github.io/PureBeta/"><img src="reference/figures/logo.png" align="right" height="278" alt="PureBeta website"></a></p>
 <p>Method for calculating tumor purity and adjusting Illumina 450/850K DNA methylation beta values. This work has been described in the article “<strong>Tumor purity estimated from bulk DNA methylation can be used for adjusting beta values of individual samples to better reflect tumor biology</strong>” published by <a href="LINK">Sasiain, Nacer et al. in <em>JOURNAL</em></a>.</p>
 <div class="section level2">
-<h2 id="how-to-install">How to install<a class="anchor" aria-label="anchor" href="#how-to-install"></a>
-</h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Install devtools if you don't have it yet</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Load the library</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/" class="external-link">devtools</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Install and load PureBeta</span></span>
-<span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"StaafLab/PureBeta"</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://staaflab.github.io/PureBeta/(&gt;=">PureBeta</a></span><span class="op">)</span></span></code></pre></div>
+  <h2 id="how-to-install">How to install<a class="anchor" aria-label="anchor" href="#how-to-install"></a></h2>
+  <div class="sourceCode" id="cb1">
+    <pre class="downlit sourceCode r"><code class="sourceCode R"><span class="co"># Install devtools if you don't have it yet</span>
+<span class="fu">install.packages</span>(<span class="st">"devtools"</span>)
+<span class="co"># Load the library</span>
+<span class="kw">library</span>(<span class="va"><a href="https://devtools.r-lib.org/" class="external-link">devtools</a></span>)
+<span class="co"># Install and load PureBeta</span>
+<span class="fu">install_github</span>(<span class="st">"StaafLab/PureBeta"</span>)
+<span class="kw">library</span>(<span class="va">PureBeta</span>)
+</code></pre>
+  </div>
 </div>
-</div>
+
+
 
 <!-- Insert the textbox here -->
 <div style="border: 1px solid #ccc; padding: 10px; background-color: #f9f9f9; margin-top: 15px;">
   <strong>NOTE:</strong> Due to the included reference data, the installation of the package may require more than 30 seconds. In case of reaching the installation timeout when installing the package, consider changing the default timeout as follows:
-  <pre><code class="sourceCode R"><span class="kw">Sys.setenv</span>(<span class="st">"R_REMOTES_NO_ERRORS_FROM_WARNINGS"</span> = TRUE)</code></pre>
+  <pre><code class="sourceCode R"><span><span class="co"># Updating the default timeout to 1000</span></span>
+  <span><span class="kw">options</span><span class="op">(</span><span class="st">timeout = 1000</span><span class="op">)</span></span></code></pre>
 </div>
+
 
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
@@ -108,6 +110,7 @@
 <li>Lung Adenocarcinoma (LUAD)</li>
 <li>Lung Squamous Cell Carcinoma (LUSC)</li>
 </ul>
+<p>Due to size limitations these files do not include all the parameters needed to run the bootstrapping based purity estimation. Those files ara available in <a href="https://doi.org/10.6084/m9.figshare.26272864" class="external-link">FigShare</a></p>
 <p>Additionally, it includes small example datasets (purities and original beta values of a reference set with less samples, and original betas from a larger cohort) obtained from the 5000 most variable CpGs in the TCGA BRCA data set to test the execution of the package’s functions.</p>
 <div class="section level3">
 <h3 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
