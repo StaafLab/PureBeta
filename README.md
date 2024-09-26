@@ -65,6 +65,8 @@ Genome Atlas* for three different cancer types:
 * Lung Adenocarcinoma (LUAD) 
 * Lung Squamous Cell Carcinoma (LUSC) 
 
+Due to size limitations this files do not include all the parameters needed to run the bootstrapping based purity estimation. Those files ara available in [FigShare](XXXX).
+
 Additionally, it also includes small example data sets (purities and original beta values of a reference set with less samples, and original betas from a larger cohort) obtained from the 5000 most variable CpGs of the TCGA BRCA
 data set to test the execution of the package's functions.
 
