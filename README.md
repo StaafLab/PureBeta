@@ -17,6 +17,13 @@ library(devtools)
 install_github("StaafLab/PureBeta")
 library(PureBeta)
 ```
+
+> NOTE. Due to the included reference data the installation of the package may require more than 30 seconds. In case of reaching the installation timeout when installing the package consider changing the default timeout as follows:
+``` R
+# Updating the default timeout to 1000
+options(timeout = 1000)
+```
+
 ## Summary
 
 Solid tumors are complex mixtures of tumor cells and non-malignant cells such 
