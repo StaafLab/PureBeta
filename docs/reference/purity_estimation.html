@@ -128,7 +128,8 @@ a non-parametric strategy that may signifcantly increase the execution time (The
 of the example dataset provided in the package using reference regressions built from the example reference
 data also provided in the package is 215 times slower). The bootstrapping and t distribution based approaches
 have shown almost identical results in the analysed data (TCGA-BRCA, TCGA-LUAD, TCGA-LUSC and other external validation datasets) 
-using the default parameters as shown in the image below. </p></dd>
+using the default parameters as shown in the image below. The bootstrapping based approach may also generate excessive RAM usage
+errors when parallelized on a high number of cores.</p></dd>
 
 <img src="figures/t_boot.png" alt="Comparison of the purity esttimates through bootstrapping and t-dist based approaches."> 
 
