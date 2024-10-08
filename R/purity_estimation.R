@@ -46,10 +46,6 @@
 #' @param cores Default = 1. Number of cores to be used to run the function in
 #' parallel.
 #'
-#' @param extended_output Default = FALSE. Set this argument to TRUE if the user
-#' wants to obtain the CpGs used (informative for the estimation) for the purity
-#' estimation of each analysed sample in the output list.
-#'
 #' @param assume_t_distribution Default = TRUE. Set this argument to FALSE if the user
 #' does not want to use the t statistic to calculate prediction intervals from each of the
 #' refernce regression. In this case the interval will be determined through bootstrapping,
@@ -59,6 +55,10 @@
 #' the prediction interval should be entered here if assume_t_distribution = FALSE. While an
 #' excessively low number will generate an unreliable output, choosing an excesively high value
 #' will significantly decrease the function's execution speed.
+#'
+#' @param extended_output Default = FALSE. Set this argument to TRUE if the user
+#' wants to obtain the CpGs used (informative for the estimation) for the purity
+#' estimation of each analysed sample in the output list.
 #'
 #' @returns extended_output List containing a data frame with the predicted 1 - Purity values
 #' (output$`Estimated_1mPurities`). It contains the identified estimates (in very
