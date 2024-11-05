@@ -2,7 +2,7 @@
 
 <a href="https://staaflab.github.io/PureBeta/"><img src="man/figures/logo.png" align="right" height="200" alt="PureBeta website" /></a>
 
-Method for calculating tumor purity and adjusting Illumina 450/850K DNA methylation beta values. This work has been described in the article "**Tumor purity estimated from bulk DNA methylation can be used for adjusting beta values of individual samples to better reflect tumor biology**" published by [Sasiain, Nacer et al. in *JOURNAL*](LINK).
+Method for calculating tumor purity and adjusting Illumina 450/850K DNA methylation beta values. This work has been described in the article "**Tumor purity estimated from bulk DNA methylation can be used for adjusting beta values of individual samples to better reflect tumor biology**" published by [Sasiain, Nacer et al. in *NAR: Genomics and Bioinformatics*](https://academic.oup.com/nargab/article/6/4/lqae146/7874836?searchresult=1).
 
 ### **The complete package documentation, including installation guide, usage of the included functions and example datasets, and citation recommendations is available in the following [page](https://staaflab.github.io/PureBeta/).**
 
