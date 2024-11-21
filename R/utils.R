@@ -1,5 +1,335 @@
 # Internal functions used in the PureBeta package
 
+
+#
+# Function to correct beta values based on a cohort of samples with known
+# purities. This function is also used to determine reference regressions
+# for each CpG. This function deals with very underreprsented populations unlike 
+# adjustBeta 
+#
+
+new_adjustBeta <- function(
+
+    methylation,
+    purity,
+    snames,
+    nmax = 3,
+    nrep = 3,
+    seed = TRUE,
+    similarity_threshold = 0.15,
+    my_quantile = 0.95
+
+  ) {
+
+    # DEFINE INTERNAL FUNCTIONS
+    # Function to calculate area under a curve using the trapezoidal rule
+    calculate_area <- function(x, y) {
+    # Error handling
+    if (length(x) != length(y)) {stop("x and y must have the same length.")}
+    
+    # Determine area using trapezoidal rule
+    sum(diff(x) * (head(y, -1) + tail(y, -1)) / 2, na.rm = TRUE)
+    }
+
+    reassign_clusters <- function(regressions, betas, purities, clusters) {
+    # Initialize a new cluster vector to hold updated assignments
+    new_clusters <- clusters
+    
+    # Loop through each point (sample) to determine reassignment
+    for (i in seq_along(betas)) {
+        # Current sample values
+        beta_point <- betas[i]
+        purity_point <- purities[i]
+        
+        # Calculate distances to each regression model
+        distances <- sapply(regressions, function(reg) {
+        abs(beta_point - predict(reg, newdata = data.frame(purity_subset = purity_point)))
+        })
+
+
+        # Determine the closest cluster based on minimal distance
+        closest_cluster <- which.min(distances)
+        
+                                
+        # Assign the point to the closest cluster
+        new_clusters[i] <- closest_cluster
+    }
+    
+    # Return updated cluster assignments
+    return(new_clusters)
+    }
+
+    #If a seed is provided as the first element of the methylation vector (seed=TRUE)
+    #set seed for the cluster determination and remove it from the methylation vector
+    if(seed) {
+      set.seed(as.integer(methylation[1]))
+      methylation<-methylation[-1]
+    }
+
+    #Defining variables for clustering and regression
+    x <- as.numeric(purity)
+    x2 <- 1-as.numeric(purity)
+    y <- as.numeric(methylation)
+
+    #Add small gaussian noise to x (avoid errors when large number of zero samples)
+    y2<-y+rnorm(length(y),mean=0,sd=.005)
+
+    #1. FITTING ORIGINAL FLEXMIX
+    
+    # Running flexmix with one, two or three clusters allowed
+    original_flexmix <- stepFlexmix(y2 ~ x,
+                                    k = 1:nmax, 
+                                    nrep = nrep,
+                                    verbose = FALSE)
+    
+    # Selecting best model using Bayesian Information Criteria                       
+    original_flexmix <- getModel(original_flexmix, "BIC")
+    
+    # 2. GETTING CLUSTERS
+    clusters_orig <- as.integer(factor(clusters(original_flexmix)))
+    
+    # 3. FITTING REGRESSION PER CLUSTER (METHYLATION PATTERN)
+    my_regs <- lapply(sort(unique(clusters_orig)), function(cl) {
+      beta_subset <- y2[clusters_orig == cl]
+      purity_subset <- x[clusters_orig == cl]
+      lm(beta_subset ~ purity_subset)
+    })
+    
+    my_updated_regs <- list()
+    
+    # 4. ANALYZING UNDERREPRESENTED POPULATIONS
+    
+    if (length(my_regs) == 1) {
+      # Determine residual threshold (95th quantile)
+      residual_threshold <- quantile(my_regs[[1]]$residuals, my_quantile, na.rm = TRUE)
+      
+      # Define subpopulations based on high residuals
+      subpopulation_betas <- y2[my_regs[[1]]$residuals >= residual_threshold]
+      subpopulation_purities <- x[my_regs[[1]]$residuals >= residual_threshold]
+      
+      # Try fitting new flexmix model with two subpopulations
+        
+        # Fitting flexmix to subpopulation
+        new_flexmix <- stepFlexmix(subpopulation_betas ~ subpopulation_purities,
+                                   k = 1:(1-nmax), 
+                                   nrep = nrep,
+                                   verbose = FALSE) 
+        
+        # Selecting best model using Bayesian Information Criteria                       
+        new_flexmix <- getModel(new_flexmix, "BIC")
+        
+        # Gettingh clusters
+        clusters_new <- as.integer(factor(clusters(new_flexmix)))
+        
+        # Fit regressions for new clusters
+        my_new_regs <- lapply(sort(unique(clusters_new)), function(cl) {
+          beta_subset <- subpopulation_betas[clusters_new == cl]
+          purity_subset <- subpopulation_purities[clusters_new == cl]
+          lm(beta_subset ~ purity_subset)
+        })
+        
+        # 5. Comparing original regression with each new regression
+        orig_model <- my_regs[[1]]
+        common_purities <- seq(0, 1, length.out = 100)
+        orig_values <- predict(orig_model, newdata = data.frame(purity_subset = common_purities))
+        
+        area_differences <- sapply(my_new_regs, function(new_model) {
+          new_values <- predict(new_model, newdata = data.frame(purity_subset = common_purities))
+          
+          # Handle cases where predictions fail
+          if (anyNA(new_values) || anyNA(orig_values)) return(NA)
+          
+          # Calculate areas under the curves
+          area_new <- calculate_area(common_purities, new_values)
+          area_orig <- calculate_area(common_purities, orig_values)
+          
+          # Return absolute difference in areas
+          abs(area_new - area_orig)
+        })
+        
+        # Initialize a new cluster assignment vector
+        updated_clusters <- clusters_orig
+        
+        # Identify samples with significantly different regressions
+        new_cluster_samples <- which(area_differences >= similarity_threshold)
+        data_points_new_cluster <- clusters_new == new_cluster_samples
+        
+        # Update the clusters to include the new cluster
+        updated_clusters[my_regs[[1]]$residuals >= residual_threshold][data_points_new_cluster] <- max(clusters_orig) + 1
+        
+        
+      # 6. FIT NEW REGRESSIONS
+      my_updated_regs <- lapply(sort(unique(updated_clusters)), function(cl) {
+          beta_subset <- y2[updated_clusters == cl]
+          purity_subset <- x[updated_clusters == cl]
+          lm(beta_subset ~ purity_subset)
+        })
+        
+
+    } else {
+      
+      updated_clusters <- clusters_orig
+      my_updated_regs <- my_regs
+      
+    }
+    
+    
+    if (length(my_updated_regs) >= 2) {
+      
+      # 5. APPLY DATA POINT REASSIGNMENT
+        
+      # Call the random_reassign function to update the clusters
+      updated_clusters <- reassign_clusters(betas = y, 
+                                            purities = x, 
+                                            clusters = updated_clusters, 
+                                            regressions = my_updated_regs)
+    }
+
+
+    # 6. DEFINING CLUSTERS BASED ON THE PREVIOUS APPROACH
+    cl<-as.integer(factor(updated_clusters))
+
+
+
+    ## CALCULATING REGRESSIONS
+
+    #Determining the b_vs_pur regressions for the clusters identified
+    b_vs_pur <- lapply(1:nmax,function(z) {
+      if(z %in% cl) {
+        lm(y[cl==z]~x[cl==z]) #Beta VS 1-Purity regression
+
+      } else { NA } #If less than 3 populations were detected NA is added
+
+    })
+
+    #Determining the b_vs_1mp regressions for the clusters identified
+    b_vs_1mp <- lapply(1:nmax,function(z) {
+      if(z %in% cl) {
+        lm(y[cl==z]~x2[cl==z]) #Beta VS 1-Purity regression
+      } else { NA } #If less than 3 populations were detected NA is added
+    })
+
+
+    ## DETERMINING THE FUNCTION'S OUTPUT FROM THE CALCULATED REGRESSIONS
+
+    output_list <- list() #Creating a list to store the data
+
+    #Adding the population to which each CpG belongs to the list
+    output_list$groups <- cl
+
+    #Adding the number of population to which each CpG belongs to the list
+    output_list$n.groups <- length(levels(factor(cl)))
+
+
+    #Adding corrected microenvironment betas to the list
+    output_list$y.norm <- sapply(
+      X = 1:nmax,
+      FUN = function(z) {
+        if (z %in% cl) {
+          n_vals <- coefficients(b_vs_pur[[z]])[1]+residuals(b_vs_pur[[z]])
+          names(n_vals)<-snames[cl==z]
+          n_vals
+
+        } else {
+          NULL
+        }
+      })
+    output_list$y.norm <- unlist(output_list$y.norm)[snames]
+
+    #Adding corrected tumor betas to the list
+    output_list$y.tum <- sapply(
+      X = 1:nmax,
+      FUN = function(z) {
+        if (z %in% cl) {
+          n_vals <- coefficients(b_vs_1mp[[z]])[1]+residuals(b_vs_1mp[[z]])
+          names(n_vals)<-snames[cl==z]
+          n_vals
+
+        } else {
+          NULL
+        }
+      })
+    output_list$y.tum <- unlist(output_list$y.tum)[snames]
+
+
+    ##in very rare instances flexmix calls 3 populations but one groups has zero members. -> has parameters for non-existant pop in output?!
+    #output_list$res.int <- round(as.numeric(unlist(lapply(slot(model,"components"),function(z) slot(z[[1]],"parameters")$coef[1]))),3)
+    #output_list$res.slopes <- round(as.numeric(unlist(lapply(slot(model,"components"),function(z) slot(z[[1]],"parameters")$coef[2]))),3)
+
+    #Getting line parameters from b_vs_1mp: INTERCEPTS
+    output_list$res.int <- sapply(
+      X = 1:nmax,
+      FUN = function(z) {
+        if (z %in% cl) {
+          int <- coefficients(b_vs_1mp[[z]])[1]
+          round(as.numeric(int),3)
+
+        } else {
+          NA
+        }
+      },
+      simplify = TRUE)
+
+    #Getting line parameters from b_vs_1mp: SLOPES
+    output_list$res.slopes <- sapply(
+      X = 1:nmax,
+      FUN = function(z) {
+        if (z %in% cl) {
+          int <- coefficients(b_vs_1mp[[z]])[2]
+          round(as.numeric(int),3)
+
+        } else {
+          NA
+        }
+      },
+      simplify = TRUE)
+
+
+    #Getting line parameters from b_vs_1mp: RESIDUAL STANDARD ERROR
+    output_list$res.rse <- sapply(
+      X = 1:nmax,
+      FUN = function(z) {
+        if (z %in% cl) {
+          RSE <- summary(b_vs_1mp[[z]])$sigma
+          round(as.numeric(RSE),6)
+
+        } else {
+          NA
+        }
+      },
+      simplify = TRUE)
+
+    #Getting line parameters from b_vs_1mp: RESIDUAL STANDARD ERROR
+    output_list$res.df <- sapply(
+      X = 1:nmax,
+      FUN = function(z) {
+        if (z %in% cl) {
+          df.residual(b_vs_1mp[[z]])
+
+        } else {
+          NA
+        }
+      },
+      simplify = TRUE)
+
+    #Cap the corrected betas to 0 and 1
+    output_list$y.tum[output_list$y.tum > 1] <- 1
+    output_list$y.tum[output_list$y.tum < 0] <- 0
+    output_list$y.norm[output_list$y.norm > 1] <- 1
+    output_list$y.norm[output_list$y.norm < 0] <- 0
+
+    #Round the betas to three decimal places
+    output_list$y.tum <- round(output_list$y.tum,3)
+    output_list$y.norm <- round(output_list$y.norm,3)
+
+    #Adding the rounded original betas to the list
+    output_list$y.orig <- round(methylation,3)
+
+    return(output_list)
+
+  }
+
+
 #
 # Function to correct beta values based on a cohort of samples with known
 # purities. This function is also used to determine reference regressions
