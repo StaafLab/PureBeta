@@ -237,15 +237,18 @@ if (assume_t_distribution) {
       # refernce regression dataset
       if (cpg %in% rownames(reference_regressions$reg.slopes)) {
 
-        interval_mat[cpg,] <- predicting_purity(beta=beta_values[cpg, s],
-                                                slopes=reference_regressions$reg.slopes[cpg, ],
-                                                intercepts=reference_regressions$reg.intercepts[cpg, ],
-                                                RSE=reference_regressions$reg.RSE[cpg, ],
-                                                degrees_of_freedom=reference_regressions$reg.df[cpg, ],
-                                                slope_threshold=slope_threshold,
-                                                alpha=alpha,
-                                                assume_t_distribution = assume_t_distribution)
+        # Ignore NA beta values
+        if (!is.na(beta_values[cpg, s])){
 
+          interval_mat[cpg,] <- predicting_purity(beta=beta_values[cpg, s],
+                                                  slopes=reference_regressions$reg.slopes[cpg, ],
+                                                  intercepts=reference_regressions$reg.intercepts[cpg, ],
+                                                  RSE=reference_regressions$reg.RSE[cpg, ],
+                                                  degrees_of_freedom=reference_regressions$reg.df[cpg, ],
+                                                  slope_threshold=slope_threshold,
+                                                  alpha=alpha,
+                                                  assume_t_distribution = assume_t_distribution)
+        }
       }
     }
 
@@ -253,7 +256,7 @@ if (assume_t_distribution) {
     # The results with be shown in list named with the sample id
     list(name = s,
          value = purity_coverage(
-         pred_purity_confidence=interval_mat,
+         pred_purity_confidence=na.omit(interval_mat),
          interval_threshold=100*(1-proportion_to_interval)),
          cpgs = rownames(na.omit(interval_mat))
     )
@@ -297,6 +300,9 @@ if (assume_t_distribution) {
       # refernce regression dataset
       if (cpg %in% rownames(reference_regressions$reg.slopes)) {
 
+        # Ignore NA beta values
+        if (!is.na(beta_values[cpg, s])){
+
         interval_mat[cpg,] <- predicting_purity(beta=beta_values[cpg, s],
                                                  slopes=reference_regressions$reg.slopes[cpg, ],
                                                  intercepts=reference_regressions$reg.intercepts[cpg, ],
@@ -308,9 +314,8 @@ if (assume_t_distribution) {
                                                  original_purities = reference_regressions$purities,
                                                  B = Boots_N,
                                                  alpha = alpha,
-                                                 assume_t_distribution = assume_t_distribution
-        )
-
+                                                 assume_t_distribution = assume_t_distribution)
+        }
       }
     }
 
