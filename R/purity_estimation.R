@@ -117,17 +117,6 @@ purity_estimation <- function(
   list_of_used_cpgs <- list() #Create a list to append the used CpGs for each prediction
   output_list <- list() #List to append the final output
 
-
-  #
-  # FILTERING REFERENCE REGRESSIONS BASED ON VARIANCE
-  #
-
-  #Generate a vector with the CpGs to filter
-  cpgs_to_keep <- names(reference_regressions$cpg.variance[reference_regressions$cpg.variance >= variance_threshold])
-
-  #Filtering regression objects. No need to filter the other parameters as we will interate through them using the cpG ids from the slopes matrix
-  reference_regressions$reg.slopes <- reference_regressions$reg.slopes[cpgs_to_keep,]
-
   #
   # QC OF THE REGRESSIONS
   #
@@ -179,6 +168,18 @@ purity_estimation <- function(
   # There is no need to filter CpG beta values or other parameters as we iterate through the Cpg ids 
   # present in the reg.slopes matrix.
 
+  
+  #
+  # FILTERING REFERENCE REGRESSIONS BASED ON VARIANCE
+  #
+
+  #Generate a vector with the CpGs to filter
+  cpgs_to_keep <- names(reference_regressions$cpg.variance[reference_regressions$cpg.variance >= variance_threshold])
+
+  #Filtering regression objects. No need to filter the other parameters as we will interate through them using the cpG ids from the slopes matrix
+  reference_regressions$reg.slopes <- reference_regressions$reg.slopes[cpgs_to_keep,]
+
+  
   #
   # CONFIGURING PARALLELIZATION
   #
