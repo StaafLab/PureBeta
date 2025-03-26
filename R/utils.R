@@ -621,18 +621,29 @@ identify_regression <- function(
       Distance_3 = rep(NA, length(vec_betas))
     )
 
-
-    # Filling the matrix using an apply function
+    # Filling the matrix using apply
     distances_matrix <- t(apply(distances_df, 1, function(row) {
-
-      # Calculating the distance of the CpG to each population
-      distance_1 <-  if (!is.na(vec_slopes[1])) {row["Beta"] - (vec_slopes[1] * row["Purity"]  + vec_intercepts[1])} else {NA}
-      distance_2 <-  if (!is.na(vec_slopes[1])) {row["Beta"] - (vec_slopes[2] * row["Purity"]  + vec_intercepts[2])} else {NA}
-      distance_3 <-  if (!is.na(vec_slopes[1])) {row["Beta"] - (vec_slopes[3] * row["Purity"]  + vec_intercepts[3])} else {NA}
-
-      return(c(Distance_1 = distance_1, Distance_2 = distance_2, Distance_3 = distance_3))
+    
+        # If beta is NA, return NA for all distances
+        if (is.na(row["Beta"])) {
+          return(c(Distance_1 = NA, Distance_2 = NA, Distance_3 = NA))
+        }
+    
+        # Compute distances only if slopes and intercepts are available
+        distance_1 <- if (!is.na(vec_slopes[1]) & !is.na(vec_intercepts[1])) {
+          row["Beta"] - (vec_slopes[1] * row["Purity"] + vec_intercepts[1])
+        } else { NA }
+    
+        distance_2 <- if (!is.na(vec_slopes[2]) & !is.na(vec_intercepts[2])) {
+          row["Beta"] - (vec_slopes[2] * row["Purity"] + vec_intercepts[2])
+        } else { NA }
+    
+        distance_3 <- if (!is.na(vec_slopes[3]) & !is.na(vec_intercepts[3])) {
+          row["Beta"] - (vec_slopes[3] * row["Purity"] + vec_intercepts[3])
+        } else { NA }
+    
+        return(c(Distance_1 = distance_1, Distance_2 = distance_2, Distance_3 = distance_3))
     }))
-
 
     #Determining the population (vector index) with the lowest absolute Euclidean distance. If the distances are equal the first
     #population with be chosen by default
