@@ -688,12 +688,13 @@ correcting_betas <- function(
 
     if (to_correct=="Tumor") {
 
+        
           #The tumor beta value will be obtained using the intercept and the calculated distance.
           tum_betas <- intercepts_vec + distances_vec
     
-          #The maximum possible value will always be kept below or equal to 1 and minimum to 0
-          tum_betas <- sapply(tum_betas, function(x) if(x > 1) {1} else {x})
-          tum_betas <- sapply(tum_betas, function(x) if(x < 0) {0} else {x})
+          #The maximum possible value will always be kept below or equal to 1 and minimum to 0. If the parameters are NA return NA
+          tum_betas <- sapply(tum_betas, function(x) if (is.na(x)) {NA} else if(x > 1) {1} else {x})
+          tum_betas <- sapply(tum_betas, function(x) if (is.na(x)) {NA} else if(x < 0) {0} else {x})
     
           return(tum_betas)
 
@@ -704,9 +705,9 @@ correcting_betas <- function(
           #The minimum possible value will always be kept below or equal to 1
           env_betas <- intercepts_vec + slopes_vec + distances_vec
     
-          #The maximum possible value will allways be kept below or equal to 1 and minimum to 0
-          env_betas <- sapply(env_betas, function(x) if(x > 1) {1} else {x})
-          env_betas <- sapply(env_betas, function(x) if(x < 0) {0} else {x})
+          #The maximum possible value will allways be kept below or equal to 1 and minimum to 0. If the parameters are NA return NA
+          env_betas <- sapply(env_betas, function(x) if (is.na(x)) {NA} else if(x > 1) {1} else {x})
+          env_betas <- sapply(env_betas, function(x) if (is.na(x)) {NA} else if(x < 0) {0} else {x})
            
 
       return(env_betas)
