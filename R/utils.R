@@ -647,8 +647,9 @@ identify_regression <- function(
 
     #Determining the population (vector index) with the lowest absolute Euclidean distance. If the distances are equal the first
     #population with be chosen by default
+    # If all the distances are NA return NA.
     pop_identified <- apply(distances_matrix, 1, function(row) {
-        if (any(is.na(row))) {
+        if (all(is.na(row))) {
             return(NA)
         } else {
             return(which.min(abs(row)))
