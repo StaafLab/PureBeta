@@ -647,14 +647,20 @@ identify_regression <- function(
 
     #Determining the population (vector index) with the lowest absolute Euclidean distance. If the distances are equal the first
     #population with be chosen by default
-    pop_identified <- apply(distances_matrix, 1, function(row) which.min(abs(row)))
+    pop_identified <- apply(distances_matrix, 1, function(row) {
+        if (any(is.na(row))) {
+            return(NA)
+        } else {
+            return(which.min(abs(row)))
+      }
+    })
 
     #Generating and returning output dataframe with the parameters of the identified regressions
     output_df <- data.frame(
-      Sample = names(vec_estimated_1mPurity), #Adding sample names
-      Slope = vec_slopes[pop_identified],
-      Intercept = vec_intercepts[pop_identified],
-      Distance = distances_matrix[cbind(1:nrow(distances_df), pop_identified)]
+      Sample = names(vec_estimated_1mPurity), # Adding sample names
+      Slope = ifelse(is.na(pop_identified), NA, vec_slopes[pop_identified]),
+      Intercept = ifelse(is.na(pop_identified), NA, vec_intercepts[pop_identified]),
+      Distance = ifelse(is.na(pop_identified), NA, distances_matrix[cbind(1:nrow(distances_df), pop_identified)])
     )
 
     return(output_df)
