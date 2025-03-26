@@ -688,10 +688,6 @@ correcting_betas <- function(
 
     if (to_correct=="Tumor") {
 
-       # Only perforn beta correction if all the distances to regressions are not NA
-       if (all(is.na(distances_vec))) {
-        return(NA)
-       } else {
           #The tumor beta value will be obtained using the intercept and the calculated distance.
           tum_betas <- intercepts_vec + distances_vec
     
@@ -700,14 +696,9 @@ correcting_betas <- function(
           tum_betas <- sapply(tum_betas, function(x) if(x < 0) {0} else {x})
     
           return(tum_betas)
-       }
 
     } else if (to_correct=="Microenvironment") {
 
-       # Only perforn beta correction if all the distances to regressions are not NA
-       if (all(is.na(distances_vec))) {
-        return(NA)
-       } else {
            
           #The microenvironment beta value will be obtained using the intercept and slope when 1-P=1 and the calculated distance.
           #The minimum possible value will always be kept below or equal to 1
@@ -717,7 +708,6 @@ correcting_betas <- function(
           env_betas <- sapply(env_betas, function(x) if(x > 1) {1} else {x})
           env_betas <- sapply(env_betas, function(x) if(x < 0) {0} else {x})
            
-       }
 
       return(env_betas)
 
