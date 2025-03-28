@@ -76,7 +76,7 @@ intercepts residual standard error and degrees of freedom of the regression
 calculated per CpG (input$reg.slopes, input$reg.intercepts, input$reg.RSE
 and input$df as matrices). If the prediction intervals for each regression
 are intended to be calculated through bootstrapping instead of assuming t
-distrbution the extended version of the regressions is required.</p></dd>
+distribution the extended version of the regressions is required.</p></dd>
 
 
 <dt id="arg-beta-values">beta_values<a class="anchor" aria-label="anchor" href="#arg-beta-values"></a></dt>
@@ -97,14 +97,14 @@ increase the prediction error.</p></dd>
 
 <dt id="arg-slope-threshold">slope_threshold<a class="anchor" aria-label="anchor" href="#arg-slope-threshold"></a></dt>
 <dd><p>Default = 0.2. Minimum slope allowed per regression
-for them to be taken into consideration in the sample purity estimation. he
+for them to be taken into consideration in the sample purity estimation. The
 inclusion of regressions below the threshold can increase the prediction error,
-and therefore will be considered uninformative an ignored.</p></dd>
+and therefore will be considered uninformative and ignored.</p></dd>
 
 
 <dt id="arg-variance-threshold">variance_threshold<a class="anchor" aria-label="anchor" href="#arg-variance-threshold"></a></dt>
 <dd><p>Default = 0.05. CpG beta value variance cutoff to
-filter reference data. If the CpGs are not variable enough PureBeta can not
+filter reference data. If the CpGs are not variable enough PureBeta cannot
 obtain information for the estimation. These CpGs are non-informative and can
 increase the execution time and the prediction error.</p></dd>
 
@@ -123,15 +123,15 @@ parallel.</p></dd>
 <dt id="arg-assume-t-distribution">assume_t_distribution<a class="anchor" aria-label="anchor" href="#arg-assume-t-distribution"></a></dt>
 <dd><p>Default = TRUE. Set this argument to FALSE if the user
 does not want to use the default t statistic to calculate prediction intervals from each of the
-refernce regression. In this case the interval will be determined through bootstrapping,
-a non-parametric strategy that may signifcantly increase the execution time (The purity estimation
+reference regression. In this case the interval will be determined through bootstrapping,
+a non-parametric strategy that may significantly increase the execution time (The purity estimation
 of the example dataset provided in the package using reference regressions built from the example reference
 data also provided in the package is 215 times slower). The bootstrapping and t distribution based approaches
 have shown almost identical results in the analysed data (TCGA-BRCA, TCGA-LUAD, TCGA-LUSC and other external validation datasets) 
 using the default parameters as shown in the image below. The bootstrapping based approach may also generate excessive RAM usage
 errors when parallelized on a high number of cores.</p></dd>
 
-<img src="figures/t_boot.png" alt="Comparison of the purity esttimates through bootstrapping and t-dist based approaches."> 
+<img src="figures/t_boot.png" alt="Comparison of the purity estimates through bootstrapping and t-dist based approaches."> 
 
 
 <dt id="arg-extended-output">extended_output<a class="anchor" aria-label="anchor" href="#arg-extended-output"></a></dt>
@@ -143,7 +143,7 @@ estimation of each analysed sample in the output list.</p></dd>
 <dt id="arg-boost-n">Boost_N<a class="anchor" aria-label="anchor" href="#arg-boost-n"></a></dt>
 <dd><p>The number of times the that the values will be bootstrapped to generate
 the prediction interval should be entered here if assume_t_distribution = FALSE. While an
-excessively low number will generate an unreliable output, choosing an excesively high value
+excessively low number will generate an unreliable output, choosing an excessively high value
 will significantly decrease the function's execution speed.</p></dd>
 
 </dl></div>
