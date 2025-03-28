@@ -64,7 +64,7 @@ This function allows multi-core execution.</p>
 <span>  <span class="va">reference_regressions</span>,</span>
 <span>  <span class="va">reference_betas</span>,</span>
 <span>  <span class="va">reference_purities</span>,</span>
-<span>  use_seed <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  set_seed <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  seed_num <span class="op">=</span> <span class="fl">2000</span>,</span>
 <span>  cores <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -87,7 +87,7 @@ matrix.</p></dd>
 <dd><p>The output of the purity_estimation
 function in the original format should be entered here. If the user intends
 to use any alternative format a dataframe with sample IDs in the first column
-and sample purity could be eneterd here after setting the purities_purebeta_format
+and sample purity could be enetered here after setting the purities_purebeta_format
 argument to FALSE (IMPORTANT! The user MUST enter sample purity values, not 1-Purity
 values).</p></dd>
 
@@ -95,7 +95,7 @@ values).</p></dd>
 <dt id="arg-purities-purebeta-format">purities_purebeta_format<a class="anchor" aria-label="anchor" href="#arg-purities-purebeta-format"></a></dt>
 <dd><p>Default = TRUE. If the user wanted to use a
 different input format for sample purity (see purities_samples_to_correct
-for the format especifications) this argument should be set to FALSE.</p></dd>
+for the format specifications) this argument should be set to FALSE.</p></dd>
 
 
 <dt id="arg-only-certain-cpgs">only_certain_CpGs<a class="anchor" aria-label="anchor" href="#arg-only-certain-cpgs"></a></dt>
@@ -119,7 +119,7 @@ beta correction.</p></dd>
 <dd><p>The output of the reference regression generator
 should be entered here if the refitting argument has NOT been set to TRUE.
 Else, this argument should be ignored (both short and extended versions are
-valid). The input list must at least include the list contains the a named
+valid). The input list must at least include the list contains a named
 vector with the variance of the betas of CpGs used to build the regressions
 (input$cpg.variance), the slopes, intercepts residual standard error and
 degrees of freedom of the regression calculated per CpG (input$reg.slopes,
@@ -131,21 +131,21 @@ input$reg.intercepts, input$reg.RSE and input$df as matrices).</p></dd>
 individual sample) as columns with the uncorrected beta values from the CpGs
 of the samples that are intended to be used to as reference data should be
 entered here if the refitting argument has been set to TRUE. The values must
-be numeric, the rows must be names with the CpG ID, and the columns with the
+be numeric, the rows must be named with the CpG ID, and the columns with the
 sample IDs. An example of the required format is available in the
 example_betas_reference matrix.</p></dd>
 
 
 <dt id="arg-reference-purities">reference_purities<a class="anchor" aria-label="anchor" href="#arg-reference-purities"></a></dt>
 <dd><p>Named vector containing the sample purity values of
-of the samples whose DNA methylation beta values are intended to be used as
-reference data should been entered here if the refitting argument has been set
+the samples whose DNA methylation beta values are intended to be used as
+reference data should be entered here if the refitting argument has been set
 to TRUE. The vector must be named with the sample ID, which must match with
 the sample IDs from the matrix containing the beta values. An example of the
 required format is available in the example_purities_reference vector.</p></dd>
 
 
-<dt id="arg-use-seed">use_seed<a class="anchor" aria-label="anchor" href="#arg-use-seed"></a></dt>
+<dt id="arg-use-seed">set_seed<a class="anchor" aria-label="anchor" href="#arg-use-seed"></a></dt>
 <dd><p>Default = FALSE. A seed for the FlexMix package to detect
 the different CpG methylation patterns can be used by setting this argument
 to TRUE. This argument will only be used if the refitting argument has been
